@@ -156,6 +156,10 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
 
     java.util.Timer timer = new java.util.Timer(true);
 
+    //init rolling average storage
+    List<Float>[] rollingAverage = new List[3];
+    private static final int MAX_SAMPLE_SIZE = 100;
+
     private ServiceConnection sc = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
@@ -206,6 +210,11 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
         //////////////////////////
         bindServiceConnection();
         musicService = new MusicService();
+
+        //init rolling average for linear acceleration on xyz axis
+        rollingAverage[0] = new ArrayList<Float>();
+        rollingAverage[1] = new ArrayList<Float>();
+        rollingAverage[2] = new ArrayList<Float>();
 
         //todo need to remove note_temp
         //Map<String, Object> note_temp = new HashMap<>();
@@ -377,6 +386,26 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
         return root;
     }
 
+    //calculate rolling average
+    public List<Float> roll(List<Float> list, float newMember){
+        if(list.size() == MAX_SAMPLE_SIZE){
+            list.remove(0);
+        }
+        list.add(newMember);
+        return list;
+    }
+
+    public float averageList(List<Float> tallyUp){
+
+        float total=0;
+        for(float item : tallyUp ){
+            total+=item;
+        }
+        total = total/tallyUp.size();
+
+        return total;
+    }
+
     private void change_music_speed(float currentspeed, float threshold){
         float diff=threshold-currentspeed;
         List<Float> speed_choice = new  ArrayList<Float>();
@@ -458,7 +487,7 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
                 choicetwoshow.setText(currentpace);
             }
             //String totalsecond=getChronometerSeconds(durationtimer);
-            Log.d("TotalSecond",currentpace);
+            //Log.d("TotalSecond",currentpace);
         }
     };
 
@@ -605,12 +634,21 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
             //Toast.makeText(getActivity(),"Sensor running",Toast.LENGTH_LONG).show();
 
             double acc;
-            double x = event.values[0];
+            /*double x = event.values[0];
             double y = event.values[1];
             double z = event.values[2];
-            acc = Math.sqrt(Math.pow(y,2)+Math.pow(z,2));
+            acc = Math.sqrt(Math.pow(y,2)+Math.pow(z,2));*/
+            //rolling average
+            rollingAverage[0] = roll(rollingAverage[0], event.values[0]);
+            rollingAverage[1] = roll(rollingAverage[1], event.values[1]);
+            rollingAverage[2] = roll(rollingAverage[2], event.values[2]);
+            double x = averageList(rollingAverage[0]);
+            double y = averageList(rollingAverage[1]);
+            double z = averageList(rollingAverage[2]);
+            acc = Math.sqrt(Math.pow(x,2)+Math.pow(y,2)+Math.pow(z,2))*10;
+
             acc = Math.round(acc*100.0)/100.0;
-            Log.d("walking",String.valueOf(acc));
+            //Log.d("walking",String.valueOf(acc));
             ///////QZH
             if(acc<1){
                 acc=0;
