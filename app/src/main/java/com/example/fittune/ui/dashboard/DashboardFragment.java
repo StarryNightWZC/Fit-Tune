@@ -145,6 +145,9 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
     private Sensor accSensor;
     private boolean running=false;
 
+    ////////Test
+    private Button speedchange;
+
     private int exerciseTypeFlag = 0;
 
 
@@ -215,6 +218,7 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
 
             }
         });
+
 
         //Edit
         root.findViewById(R.id.Edit).setOnClickListener(new View.OnClickListener() {
@@ -316,7 +320,6 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
                 ///
                 speed_seekbar.setProgress(0);
                 musicService.stop();
-//
                 totaldistance=0;
                 intervaldistance=0;
                 totalkcal=0;
@@ -327,9 +330,6 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
             }
         });
 
-
-
-
         speed_seekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -337,20 +337,26 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
                 Integer flag=0;
                 speed.setText("SPEED\n"+Float.toString(seedseekbarvalue)+" Km/h");
                 //change music
-                if(seedseekbarvalue<=5&&seedseekbarvalue>=0){
+                if(seedseekbarvalue<=6&&seedseekbarvalue>=0){
                     flag=1;
                     if(!musicService.currentsong.equals(1)){
                         musicService.changemusic(flag);
+                    }else {
+                        change_music_speed(seedseekbarvalue,6);
                     }
-                }else if(seedseekbarvalue<=10&&seedseekbarvalue>5){
+                }else if(seedseekbarvalue<=12&&seedseekbarvalue>6){
                     flag=2;
                     if(!musicService.currentsong.equals(2)){
                         musicService.changemusic(flag);
+                    }else {
+                        change_music_speed(seedseekbarvalue,12);
                     }
                 }else{
                     flag=3;
                     if(!musicService.currentsong.equals(3)){
                         musicService.changemusic(flag);
+                    }else {
+                        change_music_speed(seedseekbarvalue,18);
                     }
                 }
                 //Calculate total distance
@@ -369,6 +375,21 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
 
 
         return root;
+    }
+
+    private void change_music_speed(float currentspeed, float threshold){
+        float diff=threshold-currentspeed;
+        List<Float> speed_choice = new  ArrayList<Float>();
+        speed_choice.add(1.25f);
+        speed_choice.add(1.5f);
+        speed_choice.add(1.75f);
+        if (diff<=2&&diff>0){
+            musicService.changeplayerSpeed(speed_choice.get(2));
+        }else if(diff<=4&&diff>2){
+            musicService.changeplayerSpeed(speed_choice.get(1));
+        }else if(diff<=5&&diff>4) {
+            musicService.changeplayerSpeed(speed_choice.get(0));
+        }
     }
 
     private void updateStats(){

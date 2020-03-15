@@ -72,7 +72,25 @@ public class MusicService extends Service {
         }
 
     }
+    ///////////Test
+    public void changeplayerSpeed(float speed) {
+        if (mediaPlayer == null)  {
+            return;
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            // API 23 （6.0）以上 ，通过设置Speed改变音乐的播放速率
+            if (mediaPlayer.isPlaying()) {
+                // 判断是否正在播放，未播放时，要在设置Speed后，暂停音乐播放
+                mediaPlayer.setPlaybackParams(mediaPlayer.getPlaybackParams().setSpeed(speed));
+            } else {
+                mediaPlayer.setPlaybackParams(mediaPlayer.getPlaybackParams().setSpeed(speed));
+                mediaPlayer.pause();
+            }
+        } else {
 
+        }
+    }
+/*
     public void changemusicoutdoor(Integer type){
 
         switch (type){
@@ -87,7 +105,7 @@ public class MusicService extends Service {
         }
 
     }
-
+*/
     private void playnewmusic(Integer type){
         String path;
         mediaPlayer.pause();
