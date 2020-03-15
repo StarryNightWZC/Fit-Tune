@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "721793366788",
+    "firebase_url": "https://fittune-276f6.firebaseio.com",
+    "project_id": "fittune-276f6",
+    "storage_bucket": "fittune-276f6.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:721793366788:android:6c66b0242848a5897aae51",
+        "android_client_info": {
+          "package_name": "com.example.fittune"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "721793366788-a39n5d0c5jbpfjghq35pj5lut7g8svq2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.fittune",
+            "certificate_hash": "d69c7fdc32031b57ce1ad006dc9b077c03e3f4ce"
+          }
+        },
+        {
+          "client_id": "721793366788-sanj8h40q97skrg8gkj7enbqfr5optkr.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAlaFOJQ78F5I-eN64UOsHoOCHGrq1i9oc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "721793366788-sanj8h40q97skrg8gkj7enbqfr5optkr.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

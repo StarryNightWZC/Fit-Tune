@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/navigation_gallery"
+        android:icon="@drawable/ic_assessment_black_24dp"
+        android:title="Leaderboard" />
+
+    <item
+        android:id="@+id/navigation_dashboard"
+        android:icon="@drawable/ic_album_black_24dp"
+        android:title="FitTune" />
+
+    <item
+        android:id="@+id/navigation_Myaccount"
+        android:icon="@drawable/ic_account_box_black_24dp"
+        android:title="My" />
+
+</menu>
