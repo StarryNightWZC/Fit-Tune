@@ -65,10 +65,13 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.TimerTask;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -156,6 +159,41 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
 
     java.util.Timer timer = new java.util.Timer(true);
 
+    ////////////////////////////////////////////////////
+    private class Acceleration {
+        public long timestamp;
+        public float[] lowPassFilteredValues = new float[3];
+        public float[] averagedValues = new float[3];
+
+        @Override
+        public String toString() {
+            return String.format("Time,average,filtered,:,%d,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f", timestamp,
+                    averagedValues[0], averagedValues[1], averagedValues[2], lowPassFilteredValues[0],
+                    lowPassFilteredValues[1], lowPassFilteredValues[2]);
+        }
+    }
+
+    /**
+     * Cutoff frequency (fc) in low-pass filter for foot fall detection.
+     *
+     * 3.5 * 60 = 210 footfalls/min
+     */
+    private static final float FC_FOOT_FALL_DETECTION = 3.5F;
+
+    /**
+     * Cutoff frequency (fc) in low-pass filter for earth gravity detection
+     */
+    private static final float FC_EARTH_GRAVITY_DETECTION = 0.25F;
+    private static final int ACCELERATION_VALUE_KEEP_SECONDS = 10;
+    private static final int NUMBER_OF_FOOT_FALLS = 6;
+    private static final long SECOND_TO_NANOSECOND = (long) 1e9;
+
+    private Sensor accelerometer;
+    private boolean active = false;
+    private final LinkedList<Acceleration> values = new LinkedList<Acceleration>();
+
+    ////////////////////////////////////////////////////
+
     //init rolling average storage
     List<Float>[] rollingAverage = new List[3];
     private static final int MAX_SAMPLE_SIZE = 100;
@@ -202,6 +240,10 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
         sensorManager=(SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
         //counterSensor=sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
         accSensor=sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
+        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+
+        sensorManager.registerListener(this, accSensor, SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
 
         pause=root.findViewById(R.id.Pause);
         stop=root.findViewById(R.id.Finish);
@@ -612,7 +654,14 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
             sensorManager.registerListener(this,accSensor,SensorManager.SENSOR_DELAY_NORMAL);
             //Toast.makeText(getActivity(),"Sensor found",Toast.LENGTH_LONG).show();
         }else {
-            Toast.makeText(getActivity(),"Sensor not found",Toast.LENGTH_LONG).show();
+            Toast.makeText(getActivity(),"Linear accelerometer not found",Toast.LENGTH_LONG).show();
+        }
+
+        if(accelerometer!=null){
+            sensorManager.registerListener(this,accelerometer,SensorManager.SENSOR_DELAY_FASTEST);
+            //Toast.makeText(getActivity(),"Sensor found",Toast.LENGTH_LONG).show();
+        }else {
+            Toast.makeText(getActivity(),"Accelerometer not found",Toast.LENGTH_LONG).show();
         }
     }
 
@@ -631,51 +680,87 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
 
 
     @Override
-    public void onSensorChanged(SensorEvent event) {
+    public synchronized void onSensorChanged(SensorEvent event) {
 
-        //Toast.makeText(getActivity(),"Sensor running",Toast.LENGTH_LONG).show();
         if(running&&exerciseTypeFlag==1){
-            //int count=(int)event.values[0];
-            //Taptostart.setText(String.valueOf(count)+" bpm");
-            //Toast.makeText(getActivity(),"Sensor running",Toast.LENGTH_LONG).show();
 
-            double acc;
-            /*double x = event.values[0];
-            double y = event.values[1];
-            double z = event.values[2];
-            acc = Math.sqrt(Math.pow(y,2)+Math.pow(z,2));*/
-            //rolling average
-            rollingAverage[0] = roll(rollingAverage[0], event.values[0]);
-            rollingAverage[1] = roll(rollingAverage[1], event.values[1]);
-            rollingAverage[2] = roll(rollingAverage[2], event.values[2]);
-            double x = averageList(rollingAverage[0]);
-            double y = averageList(rollingAverage[1]);
-            double z = averageList(rollingAverage[2]);
-            acc = Math.sqrt(Math.pow(x,2)+Math.pow(y,2)+Math.pow(z,2))*10;
+            if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER){
+                Acceleration acceleration = new Acceleration();
+                acceleration.timestamp = event.timestamp;
 
-            acc = Math.round(acc*100.0)/100.0;
-            //Log.d("walking",String.valueOf(acc));
-            ///////QZH
-            if(acc<1){
-                acc=0;
-                Taptostart.setText("0.00"+"\n m2/s");
-            }else {
-                Taptostart.setText(String.valueOf(acc)+"\n m2/s");
-            }
-
-            if(acc>5)
-            {
-                Integer flago=3;
-                if(!musicService.currentsong.equals(3)){
-                    musicService.changemusic(flago);
+                Acceleration prevValue = values.isEmpty() ? null : values.getFirst();
+                if (prevValue == null) {
+                    for (int i = 0; i < 3; i++) {
+                        acceleration.averagedValues[i] = event.values[i];
+                        acceleration.lowPassFilteredValues[i] = event.values[i];
+                    }
+                } else {
+                    lowPassFilter(acceleration.averagedValues, event.values, event.timestamp, prevValue.averagedValues,
+                            prevValue.timestamp, FC_EARTH_GRAVITY_DETECTION);
+                    lowPassFilter(acceleration.lowPassFilteredValues, event.values, event.timestamp,
+                            prevValue.lowPassFilteredValues, prevValue.timestamp, FC_FOOT_FALL_DETECTION);
                 }
-            }else if(acc<=3){
-                Integer flago=1;
-                if(!musicService.currentsong.equals(1)){
-                    musicService.changemusic(flago);
+                values.addFirst(acceleration);
+
+                removeValuesOlderThan(event.timestamp - ACCELERATION_VALUE_KEEP_SECONDS * SECOND_TO_NANOSECOND);
+                int cadence = getCurrentCadence();
+                Taptostart.setText(String.valueOf(cadence)+"bpm");
+                if(cadence<150) {
+                    Integer flago=3;
+                    if(!musicService.currentsong.equals(1)){
+                        musicService.changemusic(flago);
+                    }
+                }else {
+                    Integer flago=1;
+                    if(!musicService.currentsong.equals(3)){
+                        musicService.changemusic(flago);
+                    }
                 }
             }
 
+            if (event.sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION){
+                //int count=(int)event.values[0];
+                //Taptostart.setText(String.valueOf(count)+" bpm");
+                //Toast.makeText(getActivity(),"Sensor running",Toast.LENGTH_LONG).show();
+
+                double acc;
+                /*double x = event.values[0];
+                double y = event.values[1];
+                double z = event.values[2];
+                acc = Math.sqrt(Math.pow(y,2)+Math.pow(z,2));*/
+                //rolling average
+                rollingAverage[0] = roll(rollingAverage[0], event.values[0]);
+                rollingAverage[1] = roll(rollingAverage[1], event.values[1]);
+                rollingAverage[2] = roll(rollingAverage[2], event.values[2]);
+                double x = averageList(rollingAverage[0]);
+                double y = averageList(rollingAverage[1]);
+                double z = averageList(rollingAverage[2]);
+                acc = Math.sqrt(Math.pow(x,2)+Math.pow(y,2)+Math.pow(z,2))*10;
+
+                acc = Math.round(acc*100.0)/100.0;
+                //Log.d("walking",String.valueOf(acc));
+                //todo: acceleration text removed to show cadence info, might need to change back
+                /*if(acc<1){
+                    acc=0;
+                    Taptostart.setText("0.00"+"\n m2/s");
+                }else {
+                    Taptostart.setText(String.valueOf(acc)+"\n m2/s");
+                }
+
+                if(acc>5)
+                {
+                    Integer flago=3;
+                    if(!musicService.currentsong.equals(3)){
+                        musicService.changemusic(flago);
+                    }
+                }else if(acc<=3){
+                    Integer flago=1;
+                    if(!musicService.currentsong.equals(1)){
+                        musicService.changemusic(flago);
+                    }
+                }*/
+
+            }
         }
 
     }
@@ -748,6 +833,110 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
             return hour+":"+min+":"+SS;
 
 
+    }
+
+    /**
+     * Get current cadence, in steps per minute.
+     *
+     * @return null if data isn't available
+     */
+    public synchronized int getCurrentCadence() {
+        try {
+            int axisIndex = findVerticalAxis();
+            float g = values.getFirst().averagedValues[axisIndex];
+            float threshold = Math.abs(g / 2);
+            long[] footFallTimestamps = new long[NUMBER_OF_FOOT_FALLS];
+            int numberOfFootFalls = 0;
+            boolean inThreshold = false;
+            int i = 0;
+            while (true) {
+                Acceleration acceleration = values.get(i++);
+                float a = acceleration.lowPassFilteredValues[axisIndex] - g;
+                if (inThreshold) {
+                    if (a < 0) {
+                        inThreshold = false;
+                    }
+                } else {
+                    if (a > threshold) {
+                        inThreshold = true;
+                        footFallTimestamps[numberOfFootFalls++] = acceleration.timestamp;
+                    }
+                }
+                if (numberOfFootFalls == NUMBER_OF_FOOT_FALLS) {
+                    break;
+                }
+            }
+            return calculateCadenceByFootFallTimestamp(footFallTimestamps);
+        } catch (NoSuchElementException e) {
+            Log.d("MyTag", "No sensor event");
+            return 0;
+        } catch (IndexOutOfBoundsException e) {
+            Log.d("MyTag", "No enough sensor events");
+            return 0;
+        }
+    }
+
+    /**
+     * Calculate cadence by timestamp of last foot falls, return the average of middle values.
+     *
+     * @param footFallTimestamps
+     * @return strides per minute
+     */
+    private int calculateCadenceByFootFallTimestamp(long[] footFallTimestamps) {
+        long[] footFallIntervale = new long[NUMBER_OF_FOOT_FALLS - 1];
+        for (int i = 0; i < (NUMBER_OF_FOOT_FALLS - 1); i++) {
+            footFallIntervale[i] = footFallTimestamps[i] - footFallTimestamps[i + 1];
+        }
+        Arrays.sort(footFallIntervale);
+        long sum = 0;
+        for (int i = 1; i < NUMBER_OF_FOOT_FALLS - 2; i++) {
+            sum += footFallIntervale[i];
+        }
+        long average = sum / NUMBER_OF_FOOT_FALLS - 3;
+        return (int) (60 * SECOND_TO_NANOSECOND / 2 / average);
+
+    }
+
+    /**
+     * The axis which has biggest average acceleration value is close to
+     * vertical. Because the earth gravity is a constant.
+     *
+     * @return index of the axis (0~2)
+     */
+    private int findVerticalAxis() {
+        Acceleration latestValue = values.getFirst();
+        float maxValue = 0;
+        int maxValueAxis = 0;
+        for (int i = 0; i < 3; i++) {
+            float absValue = Math.abs(latestValue.averagedValues[i]);
+            if (absValue > maxValue) {
+                maxValue = absValue;
+                maxValueAxis = i;
+            }
+        }
+        return maxValueAxis;
+    }
+
+    private void removeValuesOlderThan(long timestamp) {
+        while (!values.isEmpty()) {
+            if (values.getLast().timestamp < timestamp) {
+                values.removeLast();
+            } else {
+                return;
+            }
+        }
+    }
+
+    private void lowPassFilter(float[] result, float[] currentValue, long currentTime, float[] prevValue,
+                               long prevTime, float cutoffFequency) {
+        long deltaTime = currentTime - prevTime;
+        float alpha = (float) (cutoffFequency * 3.14 * 2 * deltaTime / SECOND_TO_NANOSECOND);
+        if (alpha > 1) {
+            alpha = 1;
+        }
+        for (int i = 0; i < 3; i++) {
+            result[i] = prevValue[i] + alpha * (currentValue[i] - prevValue[i]);
+        }
     }
 
 
