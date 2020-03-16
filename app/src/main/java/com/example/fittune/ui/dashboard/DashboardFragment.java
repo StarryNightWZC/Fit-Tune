@@ -659,7 +659,7 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
         }
 
         if(accelerometer!=null){
-            sensorManager.registerListener(this,accelerometer,SensorManager.SENSOR_DELAY_NORMAL);
+            sensorManager.registerListener(this,accelerometer,SensorManager.SENSOR_DELAY_FASTEST);
             //Toast.makeText(getActivity(),"Sensor found",Toast.LENGTH_LONG).show();
         }else {
             Toast.makeText(getActivity(),"Accelerometer not found",Toast.LENGTH_LONG).show();
@@ -697,6 +697,19 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
                 values.addFirst(acceleration);
 
                 removeValuesOlderThan(event.timestamp - ACCELERATION_VALUE_KEEP_SECONDS * SECOND_TO_NANOSECOND);
+                int cadence = getCurrentCadence();
+                Taptostart.setText(String.valueOf(cadence)+"bpm");
+                if(cadence<150) {
+                    Integer flago=3;
+                    if(!musicService.currentsong.equals(1)){
+                        musicService.changemusic(flago);
+                    }
+                }else {
+                    Integer flago=1;
+                    if(!musicService.currentsong.equals(3)){
+                        musicService.changemusic(flago);
+                    }
+                }
             }
 
             if (event.sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION){
@@ -720,8 +733,8 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
 
                 acc = Math.round(acc*100.0)/100.0;
                 //Log.d("walking",String.valueOf(acc));
-                ///////QZH
-                if(acc<1){
+                //todo: acceleration text removed to show cadence info, might need to change back
+                /*if(acc<1){
                     acc=0;
                     Taptostart.setText("0.00"+"\n m2/s");
                 }else {
@@ -739,7 +752,7 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
                     if(!musicService.currentsong.equals(1)){
                         musicService.changemusic(flago);
                     }
-                }
+                }*/
 
             }
         }
@@ -822,10 +835,6 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
      * @return null if data isn't available
      */
     public synchronized int getCurrentCadence() {
-        if (!active) {
-            Log.i("MyTag", "Detector is inactive, can not get cadence.");
-            return 0;
-        }
         try {
             int axisIndex = findVerticalAxis();
             float g = values.getFirst().averagedValues[axisIndex];
