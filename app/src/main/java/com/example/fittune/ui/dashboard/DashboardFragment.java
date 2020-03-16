@@ -338,7 +338,6 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
 
             }
         });
-
         speed_seekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -365,7 +364,7 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
                     if(!musicService.currentsong.equals(3)){
                         musicService.changemusic(flag);
                     }else {
-                        change_music_speed(seedseekbarvalue,18);
+                        change_music_speed(seedseekbarvalue,15);
                     }
                 }
                 //Calculate total distance
@@ -409,9 +408,9 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
     private void change_music_speed(float currentspeed, float threshold){
         float diff=threshold-currentspeed;
         List<Float> speed_choice = new  ArrayList<Float>();
-        speed_choice.add(1.25f);
-        speed_choice.add(1.5f);
-        speed_choice.add(1.75f);
+        speed_choice.add(1.1f);
+        speed_choice.add(1.2f);
+        speed_choice.add(1.3f);
         if (diff<=2&&diff>0){
             musicService.changeplayerSpeed(speed_choice.get(2));
         }else if(diff<=4&&diff>2){
@@ -623,6 +622,13 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
         running=false;
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        musicService.onDestroy();
+        getActivity().unbindService(sc);
+    }
+
 
     @Override
     public void onSensorChanged(SensorEvent event) {
@@ -743,6 +749,7 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
 
 
     }
+
 
 
 

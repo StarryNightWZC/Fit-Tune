@@ -82,7 +82,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="Pop"
+                android:text="EDM"
                 android:textColor="@android:color/white"
                 android:textSize="20sp"
                 android:textStyle="bold" />
@@ -213,7 +213,7 @@
         android:id="@+id/speedbar"
         android:layout_width="300dp"
         android:layout_height="wrap_content"
-        android:max="180"
+        android:max="150"
         android:progressTint="#FF9800"
         android:thumb="@drawable/shape_circle"
         android:visibility="gone"

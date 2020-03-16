@@ -10,13 +10,18 @@ import android.os.Binder;
 import android.os.Build;
 import android.os.Environment;
 import android.os.IBinder;
+import android.util.Log;
 import android.view.animation.LinearInterpolator;
 import android.widget.Toast;
 
 import java.io.File;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.TreeMap;
 
 public class MusicService extends Service {
@@ -36,22 +41,54 @@ public class MusicService extends Service {
 
     private final HashMap<Integer,String> Songinfo=new HashMap<>();
 
+    private HashMap<Integer, List> Song_info=new HashMap<>();
+
+
     public void initMediaPlayer() {
         try {
-            String file_path_1=Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath()+"/1.mp3";
-            String file_path_2=Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath()+"/2.mp3";
-            String file_path_3=Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath()+"/3.mp3";
-            Songinfo.put(1,file_path_1);
-            Songinfo.put(2,file_path_2);
-            Songinfo.put(3,file_path_3);
-            //String file_path=Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath()+"/Test.mp3";
-            mediaPlayer.setDataSource(file_path_1);
+            /////////////////Test
+            for (int i=1;i<4;i++){
+                List<String> p=new ArrayList<String>();
+                File root=new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getAbsolutePath()+'/'+String.valueOf(i));
+                p=Listdir(root,i);
+                Song_info.put(i,p);
+            }
+
+            String init_path=getrandommusic(1,Song_info);
+            mediaPlayer.setDataSource(init_path);
             currentsong=1;
             mediaPlayer.prepare();
+            mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mp) {
+                    playnewmusic(currentsong);
+                }
+            });
             //mediaPlayer.setLooping(true);  // 设置循环播放
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private List Listdir(File f,int type){
+        List<String> filelist=new ArrayList<String>();
+        File[] files=f.listFiles();
+        filelist.clear();
+        for(File file:files){
+            filelist.add(file.getAbsolutePath());
+        }
+        return filelist;
+    }
+
+    private String getrandommusic(int type,HashMap<Integer, List> SongLib){
+        String song_path="";
+        List<String> f=SongLib.get(type);
+        int max=f.size();
+        Random random = new Random();
+        int r = random.nextInt(max)%(max+1);
+        song_path=f.get(r);
+        Log.d("Files",song_path);
+        return song_path;
     }
 
     public void changemusic(Integer type){
@@ -90,29 +127,15 @@ public class MusicService extends Service {
 
         }
     }
-/*
-    public void changemusicoutdoor(Integer type){
 
-        switch (type){
-            case 1:
-                playnewmusic(type);
-                currentsong=1;
-                break;
-            case 2:
-                playnewmusic(type);
-                currentsong=2;
-                break;
-        }
-
-    }
-*/
     private void playnewmusic(Integer type){
         String path;
         mediaPlayer.pause();
         mediaPlayer.stop();
         mediaPlayer.reset();
         try {
-            path=Songinfo.get(type);
+            //path=Songinfo.get(type);
+            path=getrandommusic(type,Song_info);
             mediaPlayer.setDataSource(path);
             mediaPlayer.prepare();
             // mediaPlayer.seekTo(0);
@@ -151,6 +174,7 @@ public class MusicService extends Service {
             }
         }
     }
+
 
 
     @Override
