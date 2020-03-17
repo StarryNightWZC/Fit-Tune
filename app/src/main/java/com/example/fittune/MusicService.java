@@ -87,7 +87,7 @@ public class MusicService extends Service {
         Random random = new Random();
         int r = random.nextInt(max)%(max+1);
         song_path=f.get(r);
-        Log.d("Files",song_path);
+        //Log.d("Files",song_path);
         return song_path;
     }
 
@@ -127,6 +127,8 @@ public class MusicService extends Service {
 
         }
     }
+
+
 
     private void playnewmusic(Integer type){
         String path;

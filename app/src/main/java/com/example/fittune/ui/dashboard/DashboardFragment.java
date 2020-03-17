@@ -185,7 +185,7 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
      */
     private static final float FC_EARTH_GRAVITY_DETECTION = 0.25F;
     private static final int ACCELERATION_VALUE_KEEP_SECONDS = 10;
-    private static final int NUMBER_OF_FOOT_FALLS = 6;
+    private static final int NUMBER_OF_FOOT_FALLS = 10;
     private static final long SECOND_TO_NANOSECOND = (long) 1e9;
 
     private Sensor accelerometer;
@@ -243,7 +243,7 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
         sensorManager.registerListener(this, accSensor, SensorManager.SENSOR_DELAY_NORMAL);
-        sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME);
 
         pause=root.findViewById(R.id.Pause);
         stop=root.findViewById(R.id.Finish);
@@ -307,7 +307,7 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
                             exerciseTypeFlag = 1;
                             Flag=false;
                             //Taptostart.setText("0 BPM");
-                            Taptostart.setText("0 BPM");
+                            Taptostart.setText("0 \n BPM");
                             musicService.playOrPause();
 
                             running=true;
@@ -392,21 +392,21 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
                     if(!musicService.currentsong.equals(1)){
                         musicService.changemusic(flag);
                     }else {
-                        change_music_speed(seedseekbarvalue,6);
+                        change_music_speed(seedseekbarvalue,6,2);
                     }
                 }else if(seedseekbarvalue<=12&&seedseekbarvalue>6){
                     flag=2;
                     if(!musicService.currentsong.equals(2)){
                         musicService.changemusic(flag);
                     }else {
-                        change_music_speed(seedseekbarvalue,12);
+                        change_music_speed(seedseekbarvalue,12,2);
                     }
                 }else{
                     flag=3;
                     if(!musicService.currentsong.equals(3)){
                         musicService.changemusic(flag);
                     }else {
-                        change_music_speed(seedseekbarvalue,15);
+                        change_music_speed(seedseekbarvalue,15,2);
                     }
                 }
                 //Calculate total distance
@@ -447,19 +447,29 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
         return total;
     }
 
-    private void change_music_speed(float currentspeed, float threshold){
-        float diff=threshold-currentspeed;
-        List<Float> speed_choice = new  ArrayList<Float>();
-        speed_choice.add(1.1f);
-        speed_choice.add(1.2f);
-        speed_choice.add(1.3f);
-        if (diff<=2&&diff>0){
-            musicService.changeplayerSpeed(speed_choice.get(2));
-        }else if(diff<=4&&diff>2){
-            musicService.changeplayerSpeed(speed_choice.get(1));
-        }else if(diff<=5&&diff>4) {
-            musicService.changeplayerSpeed(speed_choice.get(0));
-        }
+    private void change_music_speed(float currentspeed, float threshold,int scenario){
+       if(scenario==1){
+           if(currentspeed>threshold){
+               float speed=(currentspeed-threshold)/currentspeed;
+               speed= (float) (1.1+(float)(Math.round(speed*1000)/1000f));
+               Log.d("Speed",String.valueOf(speed));
+               musicService.changeplayerSpeed(speed);
+           }
+       }else {
+           float diff=threshold-currentspeed;
+           List<Float> speed_choice = new  ArrayList<Float>();
+           speed_choice.add(1.1f);
+           speed_choice.add(1.2f);
+           speed_choice.add(1.3f);
+           if (diff<=2&&diff>0){
+               musicService.changeplayerSpeed(speed_choice.get(2));
+           }else if(diff<=4&&diff>2){
+               musicService.changeplayerSpeed(speed_choice.get(1));
+           }else if(diff<=5&&diff>4) {
+               musicService.changeplayerSpeed(speed_choice.get(0));
+           }
+       }
+
     }
 
     private void updateStats(){
@@ -658,7 +668,7 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
         }
 
         if(accelerometer!=null){
-            sensorManager.registerListener(this,accelerometer,SensorManager.SENSOR_DELAY_FASTEST);
+            sensorManager.registerListener(this,accelerometer,SensorManager.SENSOR_DELAY_NORMAL);
             //Toast.makeText(getActivity(),"Sensor found",Toast.LENGTH_LONG).show();
         }else {
             Toast.makeText(getActivity(),"Accelerometer not found",Toast.LENGTH_LONG).show();
@@ -704,18 +714,27 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
 
                 removeValuesOlderThan(event.timestamp - ACCELERATION_VALUE_KEEP_SECONDS * SECOND_TO_NANOSECOND);
                 int cadence = getCurrentCadence();
-                Taptostart.setText(String.valueOf(cadence)+"bpm");
-                if(cadence<150) {
-                    Integer flago=3;
+                Taptostart.setText(String.valueOf(cadence)+"\nBPM");
+                if(cadence<100) {
+                    Integer flago=1;
                     if(!musicService.currentsong.equals(1)){
                         musicService.changemusic(flago);
                     }
+                    change_music_speed(cadence,65,1);
                 }else {
-                    Integer flago=1;
+                    Integer flago=2;
+                    if(!musicService.currentsong.equals(2)){
+                        musicService.changemusic(flago);
+                    }
+                    change_music_speed(cadence,115,1);
+                }
+                /*else {
+                    Integer flago=3;
                     if(!musicService.currentsong.equals(3)){
                         musicService.changemusic(flago);
                     }
-                }
+                   change_music_speed(cadence,160,1);
+                }*/
             }
 
             if (event.sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION){
@@ -844,7 +863,7 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
         try {
             int axisIndex = findVerticalAxis();
             float g = values.getFirst().averagedValues[axisIndex];
-            float threshold = Math.abs(g / 2);
+            float threshold = (float) Math.abs(g / 2.5);
             long[] footFallTimestamps = new long[NUMBER_OF_FOOT_FALLS];
             int numberOfFootFalls = 0;
             boolean inThreshold = false;
