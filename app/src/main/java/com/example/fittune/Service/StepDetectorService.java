@@ -1,4 +1,4 @@
-package com.example.fittune;
+package com.example.fittune.Service;
 
 import android.app.Service;
 import android.content.Context;
@@ -9,8 +9,6 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Binder;
 import android.os.IBinder;
-import android.util.Log;
-import android.widget.TextView;
 import android.widget.Toast;
 
 public class StepDetectorService extends Service implements SensorEventListener {

@@ -18,18 +18,40 @@ import androidx.appcompat.app.AppCompatDialogFragment;
 import androidx.core.content.ContextCompat;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class Dialog_Edit extends AppCompatDialogFragment {
-    private CheckBox distance,fatburning,pace,duration;
+    private CheckBox distance,fatburning,pace,duration,edm,classic,pop;
     private Dialog dialog;
     private TextView done;
-    private Boolean isdistance=false,isfatburning=false,ispace=false,isduration=false;
+    private Boolean isdistance,isfatburning,ispace,isduration;
+    private Boolean isedm,isclassic,ispop;
     private onDoneOnclickListener doneOnclickListener;
     StringBuilder sb=new StringBuilder();
+    StringBuilder musicstyle=new StringBuilder();
     static Integer choicenumber=0;
+
+    private HashMap<String, Boolean> exercisechoice=new HashMap<>();
+
     ArrayList<String> choice=new ArrayList<String>(2);
 
-    public Dialog_Edit(){
+    static Integer musicchoicenumber=0;
+    ArrayList<String> music=new ArrayList<String>(1);
+
+    public Dialog_Edit(Boolean distance,Boolean fatburning,Boolean pace,Boolean duration,Boolean edm,Boolean classic, Boolean pop){
+
+        isdistance=distance;isfatburning=fatburning;ispace=pace;isduration=duration;
+        isedm=edm;isclassic=classic;ispop=pop;
+
+        exercisechoice.put("Distance",isdistance);
+        exercisechoice.put("Fat Burning",isfatburning);
+        exercisechoice.put("Pace",ispace);
+        exercisechoice.put("Duration",isduration);
+        exercisechoice.put("EDM",isedm);
+        exercisechoice.put("Classic",isclassic);
+        exercisechoice.put("Pop",ispop);
 
     }
 // Done button
@@ -38,7 +60,7 @@ public class Dialog_Edit extends AppCompatDialogFragment {
     }
 
     public interface onDoneOnclickListener {
-        public void onDoneClick(StringBuilder sb);
+        public void onDoneClick(StringBuilder sb,StringBuilder musicstyle);
     }
 //
 
@@ -60,30 +82,109 @@ public class Dialog_Edit extends AppCompatDialogFragment {
         window.setAttributes(lp);
         window.addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
 
-        isdistance=false;
-        ispace=false;
-        isduration=false;
-        isfatburning=false;
         distance=(CheckBox)contentview.findViewById(R.id.Distance);
         fatburning=(CheckBox)contentview.findViewById(R.id.FatBurning);
         pace=(CheckBox)contentview.findViewById(R.id.Pace);
         duration=(CheckBox)contentview.findViewById(R.id.Duration);
         done=(TextView)contentview.findViewById(R.id.done);
 
+        edm=(CheckBox)contentview.findViewById(R.id.EDM);
+        classic=(CheckBox)contentview.findViewById(R.id.Classic);
+        pop=(CheckBox)contentview.findViewById(R.id.Pop);
+
+        InitChecked();
+
         initEvent(contentview);
         return dialog;
     }
 
+    private void InitChecked(){
+        choicenumber=0;
+        musicchoicenumber=0;
+        for (HashMap.Entry<String, Boolean> entry : exercisechoice.entrySet()) {
+            SetinitChecked(entry.getKey(),entry.getValue());
+        }
+    }
+
+    private void SetinitChecked(String key, Boolean value) {
+        switch (key){
+            case "Distance":
+                if(value){
+                    distance.setChecked(true);
+                    distance.setTextColor(ContextCompat.getColor(getContext(),R.color.colorwhite));
+                    choicenumber+=1;
+                    choice.add(key);
+                    ValidChoice(choicenumber,musicchoicenumber);
+                }
+                break;
+            case "Fat Burning":
+                if(value){
+                    fatburning.setChecked(true);
+                    fatburning.setTextColor(ContextCompat.getColor(getContext(),R.color.colorwhite));
+                    choicenumber+=1;
+                    choice.add(key);
+                    ValidChoice(choicenumber,musicchoicenumber);
+                }
+                break;
+            case "Pace":
+                if(value){
+                    pace.setChecked(true);
+                    pace.setTextColor(ContextCompat.getColor(getContext(),R.color.colorwhite));
+                    choicenumber+=1;
+                    choice.add(key);
+                    ValidChoice(choicenumber,musicchoicenumber);
+                }
+                break;
+            case "Duration":
+                if(value){
+                    duration.setChecked(true);
+                    duration.setTextColor(ContextCompat.getColor(getContext(),R.color.colorwhite));
+                    choicenumber+=1;
+                    choice.add(key);
+                    ValidChoice(choicenumber,musicchoicenumber);
+                }
+                break;
+            case "EDM":
+                if(value){
+                    edm.setChecked(true);
+                    edm.setTextColor(ContextCompat.getColor(getContext(),R.color.colorwhite));
+                    musicchoicenumber+=1;
+                    music.add(key);
+                    ValidChoice(choicenumber,musicchoicenumber);
+                }
+                break;
+            case "Classic":
+                if(value) {
+                    classic.setChecked(true);
+                    classic.setTextColor(ContextCompat.getColor(getContext(),R.color.colorwhite));
+                    musicchoicenumber += 1;
+                    music.add(key);
+                    ValidChoice(choicenumber,musicchoicenumber);
+                }
+                break;
+            case "Pop":
+                if(value){
+                    pop.setChecked(true);
+                    pop.setTextColor(ContextCompat.getColor(getContext(),R.color.colorwhite));
+                    musicchoicenumber+=1;
+                    music.add(key);
+                    ValidChoice(choicenumber,musicchoicenumber);
+                }
+                break;
+        }
+
+    }
+
+
     private void initEvent(final View contentview) {
 // Fat Burning Choice
-            Log.d("isfat",Boolean.toString(isfatburning));
+
             fatburning.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                     if(isChecked){
                         isfatburning=true;
                         choicenumber+=1;
-                        Log.d("count",Integer.toString(choicenumber));
                         fatburning.setTextColor(ContextCompat.getColor(getContext(),R.color.colorwhite));
                         choice.add(buttonView.getText().toString().trim());
                     }else {
@@ -92,25 +193,24 @@ public class Dialog_Edit extends AppCompatDialogFragment {
                             choicenumber=0;
                         }else {
                             choicenumber-=1;
-                            Log.d("count",Integer.toString(choicenumber));
                             fatburning.setTextColor(ContextCompat.getColor(getContext(),R.color.colordarkwhite));
                             choice.remove(buttonView.getText().toString().trim());
                         }
                     }
+                    ValidChoice(choicenumber,musicchoicenumber);
 
                 }
             });
 
 
 //Duration Choice
-            Log.d("isduration",Boolean.toString(isduration));
+
             duration.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                     if(isChecked){
                         isduration=true;
                         choicenumber+=1;
-                        Log.d("count",Integer.toString(choicenumber));
                         duration.setTextColor(ContextCompat.getColor(getContext(),R.color.colorwhite));
                         choice.add(buttonView.getText().toString().trim());
                     }else {
@@ -119,25 +219,25 @@ public class Dialog_Edit extends AppCompatDialogFragment {
                             choicenumber=0;
                         }else{
                             choicenumber-=1;
-                            Log.d("count",Integer.toString(choicenumber));
                             duration.setTextColor(ContextCompat.getColor(getContext(),R.color.colordarkwhite));
                             choice.remove(buttonView.getText().toString().trim());
                         }
 
                     }
+
+                    ValidChoice(choicenumber,musicchoicenumber);
                 }
             });
 
 //Pace Choice
 
-            Log.d("ispace",Boolean.toString(ispace));
+
             pace.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                     if(isChecked){
                         ispace=true;
                         choicenumber+=1;
-                        Log.d("count",Integer.toString(choicenumber));
                         pace.setTextColor(ContextCompat.getColor(getContext(),R.color.colorwhite));
                         choice.add(buttonView.getText().toString().trim());
                     }else {
@@ -145,13 +245,13 @@ public class Dialog_Edit extends AppCompatDialogFragment {
                             choicenumber=0;
                         }else{
                             choicenumber-=1;
-                            Log.d("count",Integer.toString(choicenumber));
                             pace.setTextColor(ContextCompat.getColor(getContext(),R.color.colordarkwhite));
                             choice.remove(buttonView.getText().toString().trim());
                         }
                         ispace=false;
 
                     }
+                    ValidChoice(choicenumber,musicchoicenumber);
                 }
             });
 
@@ -159,14 +259,13 @@ public class Dialog_Edit extends AppCompatDialogFragment {
 
 //Distance Choice
 
-            Log.d("isdistance",Boolean.toString(isdistance));
+
             distance.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                     if(isChecked){
                         isdistance=true;
                         choicenumber+=1;
-                        Log.d("count",Integer.toString(choicenumber));
                         distance.setTextColor(ContextCompat.getColor(getContext(),R.color.colorwhite));
                         choice.add(buttonView.getText().toString().trim());
                     }else {
@@ -176,14 +275,94 @@ public class Dialog_Edit extends AppCompatDialogFragment {
                             choicenumber=0;
                         }else{
                             choicenumber-=1;
-                            Log.d("count",Integer.toString(choicenumber));
                             distance.setTextColor(ContextCompat.getColor(getContext(),R.color.colordarkwhite));
                             choice.remove(buttonView.getText().toString().trim());
                         }
 
                     }
+                    ValidChoice(choicenumber,musicchoicenumber);
                 }
             });
+
+
+
+
+
+        classic.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked){
+                    isclassic=true;
+                    musicchoicenumber+=1;
+                    classic.setTextColor(ContextCompat.getColor(getContext(),R.color.colorwhite));
+                    music.add(buttonView.getText().toString().trim());
+                }else {
+
+                    isclassic=false;
+                    if(musicchoicenumber==0){
+                        musicchoicenumber=0;
+                    }else{
+                        musicchoicenumber-=1;
+                        classic.setTextColor(ContextCompat.getColor(getContext(),R.color.colordarkwhite));
+                        music.remove(buttonView.getText().toString().trim());
+                    }
+
+                }
+
+                ValidChoice(choicenumber,musicchoicenumber);
+            }
+        });
+
+        edm.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked){
+                    isedm=true;
+                    musicchoicenumber+=1;
+                    edm.setTextColor(ContextCompat.getColor(getContext(),R.color.colorwhite));
+                    music.add(buttonView.getText().toString().trim());
+                }else {
+
+                    isedm=false;
+                    if(musicchoicenumber==0){
+                        musicchoicenumber=0;
+                    }else{
+                        musicchoicenumber-=1;
+                        edm.setTextColor(ContextCompat.getColor(getContext(),R.color.colordarkwhite));
+                        music.remove(buttonView.getText().toString().trim());
+                    }
+
+                }
+                ValidChoice(choicenumber,musicchoicenumber);
+            }
+        });
+
+
+        pop.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked){
+                    ispop=true;
+                    musicchoicenumber+=1;
+                    pop.setTextColor(ContextCompat.getColor(getContext(),R.color.colorwhite));
+                    music.add(buttonView.getText().toString().trim());
+                }else {
+
+                    ispop=false;
+                    if(musicchoicenumber==0){
+                        musicchoicenumber=0;
+                    }else{
+                        musicchoicenumber-=1;
+                        pop.setTextColor(ContextCompat.getColor(getContext(),R.color.colordarkwhite));
+                        music.remove(buttonView.getText().toString().trim());
+                    }
+
+                }
+
+                ValidChoice(choicenumber,musicchoicenumber);
+            }
+        });
+
 
 
 
@@ -193,6 +372,11 @@ public class Dialog_Edit extends AppCompatDialogFragment {
             @Override
             public void onClick(View v) {
                 if(doneOnclickListener!=null){
+                    for(int i=0;i<music.size();i++){
+                        if(i==(music.size()-1)){
+                            musicstyle.append(music.get(i));
+                        }
+                    }
                     for (int i =0;i<choice.size();i++) {
 
                         if(i==(choice.size()-1))
@@ -202,11 +386,52 @@ public class Dialog_Edit extends AppCompatDialogFragment {
                             sb.append(choice.get(i)+",");
                         }
                     }
-                    doneOnclickListener.onDoneClick(sb);
+                    doneOnclickListener.onDoneClick(sb,musicstyle);
                 }
             }
         });
 
+
+    }
+
+    private void ValidChoice(Integer choicenumber, Integer musicchoicenumber) {
+
+        if(choicenumber==2){
+            if(!isdistance){
+                distance.setEnabled(false);
+            }
+            if(!isfatburning){
+                fatburning.setEnabled(false);
+            }
+            if(!ispace){
+                pace.setEnabled(false);
+            }
+            if(!isduration){
+                duration.setEnabled(false);
+            }
+        }else {
+            distance.setEnabled(true);
+            fatburning.setEnabled(true);
+            pace.setEnabled(true);
+            duration.setEnabled(true);
+        }
+
+        if(musicchoicenumber==1){
+            if(!isedm){
+                edm.setEnabled(false);
+            }
+            if(!ispop){
+                pop.setEnabled(false);
+            }
+            if(!isclassic){
+                classic.setEnabled(false);
+            }
+
+        }else {
+            edm.setEnabled(true);
+            pop.setEnabled(true);
+            classic.setEnabled(true);
+        }
 
     }
 

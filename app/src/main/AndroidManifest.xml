@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.example.fittune">
 
     <uses-feature
@@ -11,6 +12,7 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
 
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -18,12 +20,17 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+        <service
+            android:name=".Service.ExerciseService"
+            android:enabled="true"
+            android:exported="true"></service>
+
         <activity
             android:name=".ExerciseStatsActivity"
             android:label="@string/title_activity_exercise_stats"
-            android:theme="@style/NoActionBar"></activity>
+            android:theme="@style/NoActionBar" />
         <activity android:name=".SignedInActivity" />
-        <activity android:name=".RegisterActivity"></activity>
+        <activity android:name=".RegisterActivity" />
         <activity android:name=".LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -38,11 +45,11 @@
             android:theme="@style/NoActionBar" />
 
         <service
-            android:name=".MusicService"
+            android:name=".Service.MusicService"
             android:enabled="true"
             android:exported="true" />
         <service
-            android:name=".StepDetectorService"
+            android:name=".Service.StepDetectorService"
             android:enabled="true"
             android:exported="true" />
 

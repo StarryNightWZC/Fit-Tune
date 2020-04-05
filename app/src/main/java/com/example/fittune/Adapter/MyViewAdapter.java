@@ -1,4 +1,4 @@
-package com.example.fittune;
+package com.example.fittune.Adapter;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,6 +8,8 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.fittune.R;
+import com.example.fittune.UploadFile;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;

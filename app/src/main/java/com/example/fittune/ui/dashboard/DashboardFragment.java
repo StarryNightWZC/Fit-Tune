@@ -3,7 +3,6 @@ package com.example.fittune.ui.dashboard;
 import android.Manifest;
 import android.app.Activity;
 import android.app.ActivityManager;
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -18,7 +17,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Handler;
-import android.os.Message;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -36,15 +34,18 @@ import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.fittune.Adapter.ExerciseblockAdapter;
 import com.example.fittune.Dialog_Edit;
 import com.example.fittune.Dialog_chooseScenario;
+import com.example.fittune.ExerciseBlock;
 import com.example.fittune.ExerciseStats;
 import com.example.fittune.MainActivity;
-import com.example.fittune.MusicService;
+import com.example.fittune.Service.ExerciseService;
+import com.example.fittune.Service.MusicService;
 import com.example.fittune.R;
-import com.example.fittune.SignedInActivity;
-import com.example.fittune.StepDetectorService;
 import com.example.fittune.Userprofile;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -62,7 +63,6 @@ import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
 import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -72,7 +72,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.TimerTask;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -105,36 +104,24 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
     ////////////////
 
     private DashboardViewModel dashboardViewModel;
-    private TextView Taptostart,speed,choiceone,choicetwo,choiceoneshow,choicetwoshow;
+    private TextView Taptostart,speed;
     private boolean Flag=true;
 
-    DecimalFormat decimalFormat =new DecimalFormat("0.00");
-    DecimalFormat onedecimalFormat=new DecimalFormat("0.0");
+    DecimalFormat decimalFormat =new DecimalFormat("0.00");//***********
+    DecimalFormat onedecimalFormat=new DecimalFormat("0.0");//***********
 
-    private Chronometer durationtimer;
-    private long lastPause;
-
-    private double totalsecond=0;
-
-    ///TotalDistance
-    private float totaldistance=0;
-    private float intervaldistance=0;
-
-    ////////pace
-    private String currentpace="";
-
-    //Total Kcal
-    private double totalkcal=0;
-    private float averageweight= (float) 80.3;
 
     private Button pause,stop;
     private SeekBar speed_seekbar;
     private float  seedseekbarvalue;
 
-    private boolean isTimerStop=false,isDurationStop=false;
-    private boolean isPacechoosed=false,isDistancechoosed=true,isFatburnchoosed=true;
+    private Handler updateHandler=new Handler();
+
 
     private MusicService musicService;
+    boolean isMusicBind=false;
+    private ExerciseService exerciseService;
+    boolean isExerciseBind=false;
 
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
     private static String[] PERMISSIONS_STORAGE = {
@@ -148,13 +135,15 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
     private Sensor accSensor;
     private boolean running=false;
 
-    ////////Test
-    private Button speedchange;
+    private Boolean isdistance=false,isfatburning=false,ispace=false,isduration=false;
+    private Boolean isedm=false,isclassic=false,ispop=false;
+
 
     private int exerciseTypeFlag = 0;
 
-
-    private Handler mHandler=new Handler();
+    RecyclerView exercise_block;
+    ExerciseblockAdapter exerciseAdapter;
+    private List<ExerciseBlock> eblock;
 
 
     java.util.Timer timer = new java.util.Timer(true);
@@ -197,18 +186,44 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
     //init rolling average storage
     List<Float>[] rollingAverage = new List[3];
     private static final int MAX_SAMPLE_SIZE = 100;
-
-    private ServiceConnection sc = new ServiceConnection() {
+    //Music Service
+    private ServiceConnection scmusic = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
             musicService = ((MusicService.MyBinder) iBinder).getService();
+            isMusicBind=true;
         }
 
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
+            isMusicBind=false;
             musicService = null;
+
         }
     };
+
+    //Exercise Service
+    private ServiceConnection scexercise=new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            ExerciseService.LocalService localService=(ExerciseService.LocalService)service;
+            exerciseService=localService.getService();
+            isExerciseBind=true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+
+            isExerciseBind=false;
+        }
+    };
+
+    @Override
+    public void onCreate(Bundle savedInstanceState){
+        super.onCreate(savedInstanceState);
+    }
+
+
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -226,14 +241,20 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
         firestoreDB = FirebaseFirestore.getInstance();
 
         Taptostart = root.findViewById(R.id.text_taptostart);
-        choiceone=root.findViewById(R.id.Choiceone);
-        choicetwo=root.findViewById(R.id.Choicetwo);
 
-        //Choice value show
-        choiceoneshow=root.findViewById(R.id.Choiceoneshow);
-        choicetwoshow=root.findViewById(R.id.Choicetwoshow);
-        durationtimer=root.findViewById(R.id.DurationChronmeter);
+        exercise_block=root.findViewById(R.id.block);
+        LinearLayoutManager manager = new LinearLayoutManager(getActivity()){
+            //禁止水平滑动
+            @Override
+            public boolean canScrollHorizontally() {
+                return false;
+            }
+        };
+        manager.setOrientation(LinearLayoutManager.HORIZONTAL);
+        exercise_block.setLayoutManager(manager);
+        exercise_block.getItemAnimator().setChangeDuration(0);
 
+        SetChoicevalue("Distance,Fat Burning","EDM",true);
 
         speed=root.findViewById(R.id.speedkm);
 
@@ -249,9 +270,12 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
         stop=root.findViewById(R.id.Finish);
 
         speed_seekbar=root.findViewById(R.id.speedbar);
+
         //////////////////////////
         bindServiceConnection();
         musicService = new MusicService();
+
+        SendFlagtoActivity(Flag);
 
         //init rolling average for linear acceleration on xyz axis
         rollingAverage[0] = new ArrayList<Float>();
@@ -275,23 +299,20 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
         root.findViewById(R.id.Edit).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final Dialog_Edit dialog_edit=new Dialog_Edit();
+                final Dialog_Edit dialog_edit=new Dialog_Edit(isdistance,isfatburning,ispace,isduration,isedm,isclassic,ispop);
+
                 dialog_edit.setdoneOnclickListener(new Dialog_Edit.onDoneOnclickListener() {
                     @Override
-                    public void onDoneClick(StringBuilder sb) {
+                    public void onDoneClick(StringBuilder sb,StringBuilder music) {
                         String [] temp = null;
-                        String temps = sb.toString();
-                        boolean status = temps.contains(",");
-                        if(status){
-                            SetChoicevalue(temps);
-                        }else {
-                            choiceone.setText(temps);
-                            choicetwo.setText("");
-                        }
+                        String exercisetemps = sb.toString();
+                        String musictemps=music.toString();
+                        SetChoicevalue(exercisetemps,musictemps,false);
                         dialog_edit.dismiss();
                     }
                 });
                 dialog_edit.show(getActivity().getSupportFragmentManager(),"Edit");
+
             }
         });
 
@@ -306,15 +327,18 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
                         public void onOutdoorClick() {
                             exerciseTypeFlag = 1;
                             Flag=false;
+                            SendFlagtoActivity(Flag);
                             //Taptostart.setText("0 BPM");
                             Taptostart.setText("0 \n BPM");
                             musicService.playOrPause();
+
+                            exerciseService.updateRunnable.run();
+                            updatedatarunnable.run();
 
                             running=true;
                             pause.setVisibility(View.VISIBLE);
                             pause.setText("Pause");
                             stop.setVisibility(View.VISIBLE);
-                            startTimer();
                             dialog_chooseScenario.dismiss();
                         }
                     });
@@ -323,15 +347,18 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
                         public void ontreadmillClick() {
                             exerciseTypeFlag = 2;
                             Flag=false;
+                            SendFlagtoActivity(Flag);
                             musicService.playOrPause();
                             Taptostart.setVisibility(View.GONE);
                             speed.setVisibility(View.VISIBLE);
                             speed_seekbar.setVisibility(View.VISIBLE);
+                            speed_seekbar.setProgress(0);
                             pause.setVisibility(View.VISIBLE);
                             stop.setVisibility(View.VISIBLE);
-                            startTimer();
-                            updateRunnable.run();
-                            //new Thread(updateRunnable).start();
+
+                            exerciseService.updateRunnable.run();
+                            updatedatarunnable.run();
+
                             dialog_chooseScenario.dismiss();
                         }
                     });
@@ -345,7 +372,8 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
             public void onClick(View v) {
                 changePlay();
                 musicService.playOrPause();
-                PlayorPausedurationtimer();
+                exerciseService.PlayorPause();
+
             }
         });
 
@@ -356,9 +384,7 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
                     changePlay();
                 }
                 //
-                durationtimer.getBase();
-
-                double temp = Math.round(totaldistance*100.0)/100.0;
+                double temp = Math.round(exerciseService.getTotaldistance()*100.0)/100.0;
                 //float temp = totaldistance;
                 Map<String, Object> note = new HashMap<>();
                 note.put("duration", String.valueOf(temp));
@@ -368,48 +394,51 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
                 //upload stats
                 uploadStats();
 
-                ///
-                speed_seekbar.setProgress(0);
+                Flag=true;
+                SendFlagtoActivity(Flag);
+
+
                 musicService.stop();
-                totaldistance=0;
-                intervaldistance=0;
-                totalkcal=0;
-                currentpace="";
-                mHandler.removeCallbacks(updateRunnable);
-                stopTimer();
+                exerciseService.stop();
+
+                updateHandler.removeCallbacks(updatedatarunnable);
+                speed_seekbar.setProgress(0);
 
             }
         });
+
         speed_seekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 seedseekbarvalue=progress/10f;
+                exerciseService.seedseekbarvalue=seedseekbarvalue;
                 Integer flag=0;
                 speed.setText("SPEED\n"+Float.toString(seedseekbarvalue)+" Km/h");
                 //change music
-                if(seedseekbarvalue<=6&&seedseekbarvalue>=0){
-                    flag=1;
-                    if(!musicService.currentsong.equals(1)){
-                        musicService.changemusic(flag);
-                    }else {
-                        change_music_speed(seedseekbarvalue,6,2);
+
+                    if(seedseekbarvalue<=6&&seedseekbarvalue>=0){
+                        flag=1;
+                        if(!musicService.currentsong.equals(1)){
+                            musicService.changemusic(flag);
+                        }else {
+                            change_music_speed(seedseekbarvalue,6,2);
+                        }
+                    }else if(seedseekbarvalue<=12&&seedseekbarvalue>6){
+                        flag=2;
+                        if(!musicService.currentsong.equals(2)){
+                            musicService.changemusic(flag);
+                        }else {
+                            change_music_speed(seedseekbarvalue,12,2);
+                        }
+                    }else{
+                        flag=3;
+                        if(!musicService.currentsong.equals(3)){
+                            musicService.changemusic(flag);
+                        }else {
+                            change_music_speed(seedseekbarvalue,15,2);
+                        }
                     }
-                }else if(seedseekbarvalue<=12&&seedseekbarvalue>6){
-                    flag=2;
-                    if(!musicService.currentsong.equals(2)){
-                        musicService.changemusic(flag);
-                    }else {
-                        change_music_speed(seedseekbarvalue,12,2);
-                    }
-                }else{
-                    flag=3;
-                    if(!musicService.currentsong.equals(3)){
-                        musicService.changemusic(flag);
-                    }else {
-                        change_music_speed(seedseekbarvalue,15,2);
-                    }
-                }
-                //Calculate total distance
+
 
             }
 
@@ -425,6 +454,17 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
 
 
         return root;
+    }
+
+    private void bindServiceConnection() {
+        //Bind Music Service
+        Intent intentmu = new Intent(getActivity(), MusicService.class);
+        getActivity().bindService(intentmu, scmusic, getActivity().BIND_AUTO_CREATE);
+
+        //Bind Exercise Service
+        Intent intentex=new Intent(getActivity(), ExerciseService.class);
+        getActivity().bindService(intentex,scexercise,getActivity().BIND_AUTO_CREATE);
+
     }
 
     //calculate rolling average
@@ -472,6 +512,48 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
 
     }
 
+    //Update Data
+    private Runnable updatedatarunnable=new Runnable() {
+        @Override
+        public void run() {
+            int length=exerciseAdapter.getItemCount();
+            if(length>1){
+                for(int i=1;i<length;i++){
+                    UpdateValue(i);
+                }
+            }
+            updateHandler.postDelayed(this,1000);
+        }
+    };
+
+    private void UpdateValue(int i){
+
+        if(exerciseAdapter.getItemCount()>1) {
+            String name = exerciseAdapter.getItemName(i);
+            switch (name) {
+                case "Distance":
+                    String distanceString = decimalFormat.format(exerciseService.getTotaldistance()) + "Km";
+                    eblock.get(i).setValue(distanceString);
+                    exerciseAdapter.notifyItemChanged(i);
+                    break;
+                case "Fat Burning":
+                    String kcalString = onedecimalFormat.format(exerciseService.getTotalkcal()) + "kcal";
+                    eblock.get(i).setValue(kcalString);
+                    exerciseAdapter.notifyItemChanged(i);
+                    break;
+                case "Pace":
+                    eblock.get(i).setValue(exerciseService.getCurrentpace());
+                    exerciseAdapter.notifyItemChanged(i);
+                    break;
+                case "Duration":
+                    String duration = exerciseService.getTotalsecond();
+                    eblock.get(i).setValue(duration);
+                    exerciseAdapter.notifyItemChanged(i);
+                    break;
+            }
+        }
+    }
+
     private void updateStats(){
 
         firestoreDB.collection("Users").document(userID).get()
@@ -503,137 +585,130 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
         }else if(exerciseTypeFlag==2){
             exerciseType = "treadmill";
         }
-        double distance = Math.round(totaldistance*1000.0)/1000.0;
-        double calories = Math.round(totalkcal*1000.0)/1000.0;
+        double distance = Math.round(exerciseService.getTotaldistance()*1000.0)/1000.0;
+        double calories = Math.round(exerciseService.getTotalkcal()*1000.0)/1000.0;
+
         DocumentReference docRef = firestoreDB.collection("Exercise").document();
         ExerciseStats upload = new ExerciseStats(userID, exerciseType, distance,
-                getChronometerSeconds(durationtimer), currentpace, calories, timeStamp, docRef.getId());
+                exerciseService.getTotalsecond(), exerciseService.getCurrentpace(), calories, timeStamp, docRef.getId());
         docRef.set(upload);
         Toast.makeText(getActivity(), "Exercise Stats Uploaded to Database!", Toast.LENGTH_LONG).show();
     }
 
-    private Runnable updateRunnable=new Runnable() {
-        @Override
-        public void run() {
-            //Distance
-            intervaldistance=seedseekbarvalue*2/3600;
-            totaldistance+=intervaldistance;
-            intervaldistance=0;
-            String distanceString = decimalFormat.format(totaldistance) + "Km";
-            if(isDistancechoosed){
-                choiceoneshow.setText(distanceString);
+
+
+    private void SetChoicevalue(String temps, String Musicstyle, Boolean init){
+
+        ispop=false;isclassic=false;isedm=false;
+        isduration=false;isdistance=false;isfatburning=false;ispace=false;
+        if(init){
+            if(Musicstyle.isEmpty()){
+                Musicstyle="EDM";
             }
-            //Fat-burning
-            totalkcal=averageweight*totaldistance*1.036;
-            String kcalString = onedecimalFormat.format(totalkcal) + "kcal";
-            if(isFatburnchoosed){
-                choicetwoshow.setText(kcalString);
+            if(temps.isEmpty()){
+                temps="Distance,Fat Burning";
             }
-            mHandler.postDelayed(this,2000);
-            //Pace
-
-            totalsecond+=2;
-            currentpace=CalculateCunrrentpace(totalsecond);
-            if(isPacechoosed){
-                choicetwoshow.setText(currentpace);
+        }else {
+            if(Musicstyle.isEmpty()){
+                Musicstyle=exerciseAdapter.getItemValue(0);
             }
-            //String totalsecond=getChronometerSeconds(durationtimer);
-            //Log.d("TotalSecond",currentpace);
+            if(temps.isEmpty()){
+                temps=",";
+            }
         }
-    };
+        eblock=new ArrayList<>();
+        ExerciseBlock etemp=new ExerciseBlock();
+        etemp.setname("Music Style");
+        etemp.setValue(Musicstyle);
+        eblock.add(etemp);
 
-
-
-
-    private void SetChoicevalue(String temps){
-        if(temps.contains("Distance")&&temps.contains("Fat Burning")){
-
-            isFatburnchoosed=true;
-            isDistancechoosed=true;
-            durationtimer.setVisibility(View.GONE);
-            choiceoneshow.setVisibility(View.VISIBLE);
-            choiceone.setText("Distance");
-            choicetwo.setText("Fat Burning");
-        }else if(temps.contains("Distance")&&temps.contains("Pace")){
-
-            durationtimer.setVisibility(View.GONE);
-            choiceone.setText("Distance");
-            choicetwo.setText("Pace");
-
-        }else if(temps.contains("Distance")&&temps.contains("Duration")){
-
-            durationtimer.setVisibility(View.VISIBLE);
-            choiceone.setText("Distance");
-            choicetwo.setText("Duration");
-
-        }else if(temps.contains("Pace")&&temps.contains("Fat Burning")){
-
-            durationtimer.setVisibility(View.GONE);
-            choiceone.setText("Pace");
-            choicetwo.setText("Fat Burning");
-
-        }else if(temps.contains("Duration")&&temps.contains("Fat Burning")){
-
-            durationtimer.setVisibility(View.VISIBLE);
-            choiceone.setText("Fat Burning");
-            choicetwo.setText("Duration");
-
-        }else if(temps.contains("Duration")&&temps.contains("Pace")){
-
-            isPacechoosed=true;
-            choiceoneshow.setVisibility(View.GONE);
-            durationtimer.setVisibility(View.VISIBLE);
-            choiceone.setText("Duration");
-            choicetwo.setText("Pace");
+        switch (Musicstyle){
+            case "EDM":
+                isedm=true;
+                break;
+            case "Classic":
+                isclassic=true;
+                break;
+            case  "Pop":
+                ispop=true;
+                break;
         }
+
+        if(temps!=","){
+            String[] label=temps.split(",");
+            for(int i=0;i<label.length;i++){
+                etemp=getspecificlabel(label[i],init);
+                eblock.add(etemp);
+            }
+        }
+
+        exerciseAdapter=new ExerciseblockAdapter(getActivity(),eblock);
+        exercise_block.setAdapter(exerciseAdapter);
+
     }
 
+    private ExerciseBlock getspecificlabel(String name,Boolean init){
+        ExerciseBlock temp=new ExerciseBlock();
 
-    private void PlayorPausedurationtimer(){
-        if(isTimerStop){
-            isTimerStop=false;
-            startTimer();
+        if(init){
+            switch (name) {
+                case "Distance":
+                    isdistance=true;
+                    temp.setname("Distance");
+                    String distanceString = "0.00Km";
+                    temp.setValue(distanceString);
+                    break;
+                case "Fat Burning":
+                    isfatburning=true;
+                    temp.setname("Fat Burning");
+                    String kcalString = "0.0kcal";
+                    temp.setValue(kcalString);
+                    break;
+                case "Pace":
+                    ispace=true;
+                    temp.setname("Pace");
+                    temp.setValue("0'00''");
+                    break;
+                case "Duration":
+                    isduration=true;
+                    temp.setname("Duration");
+                    String duration = "00:00:00";
+                    temp.setValue(duration);
+                    break;
+            }
+
         }else {
-            lastPause= SystemClock.elapsedRealtime();
-            durationtimer.stop();
-            isTimerStop=true;
-        }
-        if(isDurationStop){
-            isDurationStop=false;
-            updateRunnable.run();
-        }else {
-            isDurationStop=true;
-            intervaldistance=0;
-            mHandler.removeCallbacks(updateRunnable);
+            switch (name){
+                case "Distance":
+                    isdistance=true;
+                    temp.setname("Distance");
+                    String distanceString = decimalFormat.format(exerciseService.getTotaldistance()) + "Km";
+                    temp.setValue(distanceString);
+                    break;
+                case "Fat Burning":
+                    isfatburning=true;
+                    temp.setname("Fat Burning");
+                    String kcalString = onedecimalFormat.format(exerciseService.getTotalkcal()) + "kcal";
+                    temp.setValue(kcalString);
+                    break;
+                case "Pace":
+                    ispace=true;
+                    temp.setname("Pace");
+                    temp.setValue(exerciseService.getCurrentpace());
+                    break;
+                case "Duration":
+                    isduration=true;
+                    temp.setname("Duration");
+                    String duration=exerciseService.getTotalsecond();
+                    temp.setValue(duration);
+                    break;
+            }
+
         }
 
-
+        return temp;
     }
 
-
-
-    private void startTimer(){
-        //Duration
-        if(lastPause!=0){
-            durationtimer.setBase(durationtimer.getBase()+SystemClock.elapsedRealtime()-lastPause);
-        }else {
-            durationtimer.setBase(SystemClock.elapsedRealtime());
-        }
-       // int second=(int) ((SystemClock.elapsedRealtime() - durationtimer.getBase()) / 1000 );
-       // Log.d("timer",Long.toString(durationtimer.getBase()));
-        int hour = (int) ((SystemClock.elapsedRealtime() - durationtimer.getBase()) / 1000 / 60);
-        durationtimer.setFormat("0"+String.valueOf(hour)+":%s");
-        durationtimer.start();
-
-    }
-
-    private void stopTimer(){
-        durationtimer.stop();
-        durationtimer.setBase(SystemClock.elapsedRealtime());
-        int hour = (int) ((SystemClock.elapsedRealtime() - durationtimer.getBase()) / 1000 / 60);
-        durationtimer.setFormat("0"+String.valueOf(hour)+":%s");
-        lastPause=0;
-    }
 
     private void changePlay() {
 
@@ -646,13 +721,11 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
         }
     }
 
-
-
-    private void bindServiceConnection() {
-        Intent intent = new Intent(getActivity(), MusicService.class);
-        getActivity().startService(intent);
-        getActivity().bindService(intent, sc, getActivity().BIND_AUTO_CREATE);
+    private void SendFlagtoActivity(Boolean Flag){
+        MainActivity mainActivity= (MainActivity) getActivity();
+        mainActivity.getsignalfromdashboard(Flag);
     }
+
 
 
 
@@ -682,11 +755,28 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-        musicService.onDestroy();
-        getActivity().unbindService(sc);
+    public void onStop(){
+        super.onStop();
     }
+
+    @Override
+    public void onDestroy() {
+        Log.d("onSaveInstanceState","onDestroy");
+        //getActivity().unbindService(scmusic);
+       // Log.d("U","Fragment in Destroy");
+        if(isMusicBind){
+           // Log.d("U","Success unbindmusciservice in Destroy");
+            getActivity().unbindService(scmusic);
+            isMusicBind=false;
+        }
+        if(isExerciseBind){
+            getActivity().unbindService(scexercise);
+            isExerciseBind=false;
+        }
+        super.onDestroy();
+    }
+
+
 
 
     @Override
@@ -816,43 +906,6 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
         }
     }
 
-    private String CalculateCunrrentpace(Double second){
-        String pace="";
-        double min=0;
-        double sec=0;
-        if(totaldistance==0){
-            pace="0'00";
-            return pace;
-        }else {
-            min=Math.floor(second/totaldistance/60);
-            Integer intmin=(int)min;
-            double difference=(second/totaldistance/60)-min;
-            sec=Math.floor(difference*60);
-            Integer intsec=(int)sec;
-            pace=Integer.toString(intmin)+"'"+Integer.toString(intsec)+"''";
-            return pace;
-        }
-
-    }
-
-
-    public  static String getChronometerSeconds(Chronometer cmt) {
-        int totalss = 0;
-        String string = cmt.getText().toString();
-        //Log.d("Length",Integer.toString(string.length()));
-            String[] split = string.split(":");
-            String string2 = split[0];
-            int hour = Integer.parseInt(string2);
-            int Hours =hour*3600;
-            String string3 = split[1];
-            int min = Integer.parseInt(string3);
-            int Mins =min*60;
-            int  SS =Integer.parseInt(split[2]);
-            //totalss = Hours+Mins+SS;
-            return hour+":"+min+":"+SS;
-
-
-    }
 
     /**
      * Get current cadence, in steps per minute.
