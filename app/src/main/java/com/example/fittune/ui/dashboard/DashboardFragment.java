@@ -276,6 +276,7 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
         speed_seekbar=root.findViewById(R.id.speedbar);
 
         //////////////////////////
+        Log.d("InstanceState","OncreateView");
         bindServiceConnection();
         musicService = new MusicService();
 
@@ -359,10 +360,13 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
 
                             speed.setVisibility(View.VISIBLE);
                             speed_seekbar.setVisibility(View.VISIBLE);
+                            speed_seekbar.setEnabled(true);
                             speed_seekbar.setProgress(0);
 
                             pause.setVisibility(View.VISIBLE);
                             stop.setVisibility(View.VISIBLE);
+                            pause.setEnabled(true);
+                            stop.setEnabled(true);
 
                             exerciseService.updateRunnable.run();
                             updatedatarunnable.run();
@@ -405,12 +409,14 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
                 Flag=true;
                 SendFlagtoActivity(Flag);
 
-
+                pause.setEnabled(false);
+                stop.setEnabled(false);
                 musicService.stop();
                 exerciseService.stop();
 
                 updateHandler.removeCallbacks(updatedatarunnable);
                 speed_seekbar.setProgress(0);
+                speed_seekbar.setEnabled(false);
 
             }
         });
@@ -423,7 +429,7 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
                 Integer flag=0;
                 speed.setText("SPEED\n"+Float.toString(seedseekbarvalue)+" Km/h");
                 //change music
-
+                if(!Flag){
                     if(seedseekbarvalue<=6&&seedseekbarvalue>=0){
                         flag=1;
                         if(!musicService.currentsong.equals(1)){
@@ -446,8 +452,7 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
                             change_music_speed(seedseekbarvalue,15,2);
                         }
                     }
-
-
+                }
             }
 
             @Override
@@ -740,6 +745,7 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
     @Override
     public void onResume(){
         super.onResume();
+        Log.d("InstanceState","onResume");
 
         if(accSensor!=null){
             sensorManager.registerListener(this,accSensor,SensorManager.SENSOR_DELAY_NORMAL);
@@ -765,15 +771,9 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
     @Override
     public void onStop(){
         super.onStop();
-    }
-
-    @Override
-    public void onDestroy() {
-        Log.d("onSaveInstanceState","onDestroy");
-        //getActivity().unbindService(scmusic);
-       // Log.d("U","Fragment in Destroy");
         if(isMusicBind){
-           // Log.d("U","Success unbindmusciservice in Destroy");
+            Log.d("InstanceState","unbindmusicService");
+            // Log.d("U","Success unbindmusciservice in Destroy");
             getActivity().unbindService(scmusic);
             isMusicBind=false;
         }
@@ -781,6 +781,15 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
             getActivity().unbindService(scexercise);
             isExerciseBind=false;
         }
+        Log.d("InstanceState","onStop");
+    }
+
+    @Override
+    public void onDestroy() {
+        Log.d("InstanceState","onDestroy");
+        //getActivity().unbindService(scmusic);
+       // Log.d("U","Fragment in Destroy");
+
         super.onDestroy();
     }
 

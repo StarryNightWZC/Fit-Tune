@@ -40,15 +40,20 @@ public class MusicService extends Service {
 
 
     public void initMediaPlayer() {
+
+        Log.d("InstanceState","InitMediaplayer");
         try {
             /////////////////Test
             for (int i=1;i<4;i++){
                 List<String> p=new ArrayList<String>();
                 File root=new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getAbsolutePath()+'/'+String.valueOf(i));
                 p=Listdir(root,i);
-                Song_info.put(i,p);
-            }
+                Song_info.put(i,p); }
+
             String init_path=getrandommusic(1,Song_info);
+            Log.d("InstanceStateinit",init_path);
+
+            mediaPlayer.reset();
             mediaPlayer.setDataSource(init_path);
             mediaPlayer.prepare();
             currentsong=1;
@@ -130,6 +135,8 @@ public class MusicService extends Service {
         try {
             //path=Songinfo.get(type);
             path=getrandommusic(type,Song_info);
+            Log.d("InstanceState",path);
+            mediaPlayer.reset();
             mediaPlayer.setDataSource(path);
             mediaPlayer.prepare();
             mediaPlayer.start();
@@ -150,13 +157,13 @@ public class MusicService extends Service {
 
 
     public static String which = "";
+
     @SuppressLint("WrongConstant")
     public void playOrPause() {
         which = "pause";
         if(mediaPlayer.isPlaying()){
             mediaPlayer.pause();
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            }
+
         } else {
             mediaPlayer.start();
         }
@@ -165,10 +172,12 @@ public class MusicService extends Service {
         which = "stop";
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
         }
-        if(mediaPlayer != null&&mediaPlayer.isPlaying()) {
+        if(mediaPlayer != null) {
             mediaPlayer.pause();
             mediaPlayer.stop();
+
             try {
+               // mediaPlayer.reset();//
                 mediaPlayer.prepare();
             } catch (Exception e) {
                 e.printStackTrace();
@@ -179,9 +188,11 @@ public class MusicService extends Service {
     @Override
     public void onDestroy() {
 
+
         if(mediaPlayer != null){
             mediaPlayer.stop();
             mediaPlayer.release();
+            Log.d("InstanceStateinit","musicservicedestroy");
         }
 
 
