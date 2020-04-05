@@ -44,6 +44,14 @@ public class GlobalViewAdapter extends RecyclerView.Adapter<GlobalViewAdapter.Gl
     public void onBindViewHolder(GlobalViewHolder holder, int position) {
 
         Userprofile uploadCurrent = mUploads.get(position);
+        float distanceTotal = 0;
+        distanceTotal += Float.valueOf(uploadCurrent.getMon());
+        distanceTotal += Float.valueOf(uploadCurrent.getTue());
+        distanceTotal += Float.valueOf(uploadCurrent.getWed());
+        distanceTotal += Float.valueOf(uploadCurrent.getThu());
+        distanceTotal += Float.valueOf(uploadCurrent.getFri());
+        distanceTotal += Float.valueOf(uploadCurrent.getSat());
+        distanceTotal += Float.valueOf(uploadCurrent.getSun());
         //holder.textViewName.setText(uploadCurrent.getName());
         Picasso.get()
                 .load(uploadCurrent.getStorageRef())
@@ -51,11 +59,12 @@ public class GlobalViewAdapter extends RecyclerView.Adapter<GlobalViewAdapter.Gl
                 .centerCrop()
                 .into(holder.imageView);
         //TODO update userprofile to take userID and storageref
-        holder.distance.setText(uploadCurrent.getDistance()+ " km");
+        //holder.distance.setText(uploadCurrent.getDistance()+ " km");
+        holder.distance.setText(Float.toString(distanceTotal).substring(0, 5)+ " km");
         if(uploadCurrent.getUserId().equals(userId)){
-            holder.username.setText(uploadCurrent.getname() + " (you)");
+            holder.username.setText(uploadCurrent.getName() + " (you)");
         }else{
-            holder.username.setText(uploadCurrent.getname());
+            holder.username.setText(uploadCurrent.getName());
         }
 
         //holder.imageView.setImageResource(mUploads[position]);
@@ -70,14 +79,16 @@ public class GlobalViewAdapter extends RecyclerView.Adapter<GlobalViewAdapter.Gl
         public ImageView imageView;
         public TextView username;
         public TextView distance;
+        public TextView detail;
         OnPicListener onPicListener;
         public GlobalViewHolder(View itemView, OnPicListener onPicListener) {
             super(itemView);
             this.imageView = itemView.findViewById(R.id.leaderboardProfileImage);
             this.username = itemView.findViewById(R.id.usernameTextView);
             this.distance = itemView.findViewById(R.id.distanceTextView);
+            this.detail = itemView.findViewById(R.id.Detail_text);
             this.onPicListener = onPicListener;
-            itemView.setOnClickListener(this);
+            detail.setOnClickListener(this);
         }
 
         @Override

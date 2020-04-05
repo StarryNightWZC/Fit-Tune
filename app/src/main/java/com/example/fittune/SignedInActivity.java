@@ -475,8 +475,8 @@ public class SignedInActivity extends AppCompatActivity implements MyViewAdapter
                             DocumentSnapshot document=task.getResult();
                             if(document.exists()){
                                 Userprofile profile=document.toObject(Userprofile.class);
-                                username.setText(profile.getname());
-                                bio.setText(profile.getbio());
+                                username.setText(profile.getName());
+                                bio.setText(profile.getBio());
                                 distance.setText(profile.getDistance());
                             }else{
                                 Toast.makeText(SignedInActivity.this, "No match!", Toast.LENGTH_LONG).show();
