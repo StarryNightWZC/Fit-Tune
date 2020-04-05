@@ -45,6 +45,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.TreeMap;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -94,7 +95,6 @@ public class GalleryFragment extends Fragment implements GlobalViewAdapter.OnPic
         homeViewModel =
                 ViewModelProviders.of(this).get(GalleryViewModel.class);
         View root = inflater.inflate(R.layout.fragment_gallery, container, false);
-        final TextView textView = root.findViewById(R.id.Gallery);
 
         /*profileAlice = root.findViewById(R.id.exerciseProfileImage);
         profileAlice.setOnClickListener(new View.OnClickListener() {
@@ -124,9 +124,10 @@ public class GalleryFragment extends Fragment implements GlobalViewAdapter.OnPic
         mAdapter = new GlobalViewAdapter(mUploads,this, userID);
         recyclerView.setAdapter(mAdapter);
 
-        loadGallery();
         //TODO need to update change distance mechanism
-        setDistance();
+        //setDistance();
+        //setDistanceWeek();
+        loadGallery();
 
         homeViewModel.getText().observe(this, new Observer<String>() {
             @Override
@@ -192,6 +193,45 @@ public class GalleryFragment extends Fragment implements GlobalViewAdapter.OnPic
         firestoreDB.collection("Users").document(userID).update(note);*/
     }
 
+    public void setDistanceWeek(){
+        Random rand = new Random();
+        double min = 0.0;
+        double max = 3.5;
+        double randomdouble;
+
+        Map<String, Object> note = new HashMap<>();
+
+        randomdouble = min + rand.nextDouble() * (max - min);
+        randomdouble = Math.round(randomdouble*100.0)/100.0;
+        note.put("mon", Double.toString(randomdouble));
+
+        randomdouble = min + rand.nextDouble() * (max - min);
+        randomdouble = Math.round(randomdouble*100.0)/100.0;
+        note.put("tue", Double.toString(randomdouble));
+
+        randomdouble = min + rand.nextDouble() * (max - min);
+        randomdouble = Math.round(randomdouble*100.0)/100.0;
+        note.put("wed", Double.toString(randomdouble));
+
+        randomdouble = min + rand.nextDouble() * (max - min);
+        randomdouble = Math.round(randomdouble*100.0)/100.0;
+        note.put("thu", Double.toString(randomdouble));
+
+        randomdouble = min + rand.nextDouble() * (max - min);
+        randomdouble = Math.round(randomdouble*100.0)/100.0;
+        note.put("fri", Double.toString(randomdouble));
+
+        randomdouble = min + rand.nextDouble() * (max - min);
+        randomdouble = Math.round(randomdouble*100.0)/100.0;
+        note.put("sat", Double.toString(randomdouble));
+
+        randomdouble = min + rand.nextDouble() * (max - min);
+        randomdouble = Math.round(randomdouble*100.0)/100.0;
+        note.put("sun", Double.toString(randomdouble));
+
+        firestoreDB.collection("Users").document(userID).update(note);
+    }
+
     @Override
     public void onPicClick(int position) {
         /*String commentPhotoUrl = mUploads.get(position).getStorageRef();
@@ -205,7 +245,7 @@ public class GalleryFragment extends Fragment implements GlobalViewAdapter.OnPic
 
         //Intent intent = new Intent(getActivity(), ProfileActivity.class);
         //TODO might need to change back to ProfileActivity for demo
-        Intent intent = new Intent(getActivity(), ExerciseStatsActivity.class);
+        Intent intent = new Intent(getActivity(), LeaderboardProfileActivity.class);
         startActivity(intent);
     }
 }

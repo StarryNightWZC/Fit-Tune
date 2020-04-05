@@ -9,6 +9,13 @@ public class Userprofile {
     public String duration;
     public String pace;
     public String calories;
+    public String mon;
+    public String tue;
+    public String wed;
+    public String thu;
+    public String fri;
+    public String sat;
+    public String sun;
 
 
     public Userprofile(){
@@ -46,7 +53,27 @@ public class Userprofile {
         this.calories = cal;
     }
 
-    public String getbio() {
+    public Userprofile(String userbio, String username, String dist, String id,
+                       String ref, String dur, String pa, String cal, String mo,
+                       String tu, String we, String th, String fr, String sa, String su){
+        this.bio=userbio;
+        this.name=username;
+        this.distance=dist;
+        this.userId = id;
+        this.storageRef = ref;
+        this.duration = dur;
+        this.pace = pa;
+        this.calories = cal;
+        this.mon = mo;
+        this.tue = tu;
+        this.wed = we;
+        this.thu = th;
+        this.fri = fr;
+        this.sat = sa;
+        this.sun = su;
+    }
+
+    public String getBio() {
         return bio;
     }
 
@@ -54,7 +81,7 @@ public class Userprofile {
         this.bio = userbio;
     }
 
-    public String getname() {
+    public String getName() {
         return name;
     }
 
@@ -73,4 +100,32 @@ public class Userprofile {
     public String getPace() {return pace;}
 
     public String getCalories() {return calories;}
+
+    public String getMon() {
+        return mon;
+    }
+
+    public String getTue() {
+        return tue;
+    }
+
+    public String getWed() {
+        return wed;
+    }
+
+    public String getThu() {
+        return thu;
+    }
+
+    public String getFri() {
+        return fri;
+    }
+
+    public String getSat() {
+        return sat;
+    }
+
+    public String getSun() {
+        return sun;
+    }
 }
