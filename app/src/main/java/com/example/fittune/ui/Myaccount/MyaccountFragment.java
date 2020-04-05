@@ -14,17 +14,14 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.fittune.ExerciseStats;
-import com.example.fittune.ExerciseStatsActivity;
 import com.example.fittune.LoginActivity;
 import com.example.fittune.R;
-import com.example.fittune.SignedInActivity;
-import com.example.fittune.UploadFile;
+import com.example.fittune.Model.UploadFile;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;

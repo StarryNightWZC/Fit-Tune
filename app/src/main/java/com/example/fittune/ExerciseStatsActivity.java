@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.os.Bundle;
 
 import com.example.fittune.Adapter.ProfileViewAdapter;
+import com.example.fittune.Model.UploadFile;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
@@ -71,7 +72,7 @@ public class ExerciseStatsActivity extends AppCompatActivity implements ProfileV
     String timeStamp;
     private File storageDir;
 
-    private final TreeMap<String,UploadFile> Picinfo=new TreeMap<>(Collections.reverseOrder());
+    private final TreeMap<String, UploadFile> Picinfo=new TreeMap<>(Collections.reverseOrder());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

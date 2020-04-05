@@ -10,8 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.fittune.R;
-import com.example.fittune.UploadFile;
-import com.example.fittune.Userprofile;
+import com.example.fittune.Model.Userprofile;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;

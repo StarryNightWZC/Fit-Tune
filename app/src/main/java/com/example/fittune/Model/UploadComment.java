@@ -1,4 +1,4 @@
-package com.example.fittune;
+package com.example.fittune.Model;
 
 public class UploadComment {
     public String profilePicRef;

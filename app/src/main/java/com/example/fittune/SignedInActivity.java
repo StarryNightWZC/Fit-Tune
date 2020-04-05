@@ -24,6 +24,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.fittune.Adapter.MyViewAdapter;
+import com.example.fittune.Model.UploadFile;
+import com.example.fittune.Model.Userprofile;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
