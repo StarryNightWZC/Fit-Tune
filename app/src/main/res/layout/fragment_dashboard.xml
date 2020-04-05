@@ -117,18 +117,17 @@
 
     <SeekBar
         android:id="@+id/speedbar"
+        style="@style/CustomSeekbarStyle"
         android:layout_width="300dp"
         android:layout_height="wrap_content"
         android:max="150"
-        android:progressTint="#FF9800"
-        android:thumb="@drawable/shape_circle"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.501"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/speedkm"
-        app:layout_constraintVertical_bias="0.164" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.47" />
 
     <TextView
         android:id="@+id/speedkm"

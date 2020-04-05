@@ -105,7 +105,7 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
 
     private DashboardViewModel dashboardViewModel;
     private TextView Taptostart,speed;
-    private boolean Flag=true;
+    private boolean Flag;
 
     DecimalFormat decimalFormat =new DecimalFormat("0.00");//***********
     DecimalFormat onedecimalFormat=new DecimalFormat("0.0");//***********
@@ -240,7 +240,11 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
         mDatabaseRef = FirebaseDatabase.getInstance().getReference("uploads");
         firestoreDB = FirebaseFirestore.getInstance();
 
+        Flag=true;
+        SendFlagtoActivity(Flag);
+
         Taptostart = root.findViewById(R.id.text_taptostart);
+
 
         exercise_block=root.findViewById(R.id.block);
         LinearLayoutManager manager = new LinearLayoutManager(getActivity()){
@@ -275,7 +279,7 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
         bindServiceConnection();
         musicService = new MusicService();
 
-        SendFlagtoActivity(Flag);
+
 
         //init rolling average for linear acceleration on xyz axis
         rollingAverage[0] = new ArrayList<Float>();
@@ -320,8 +324,9 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
         root.findViewById(R.id.text_taptostart).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (Flag){
+                    Log.d("Flag1",String.valueOf(Flag));
                     final Dialog_chooseScenario dialog_chooseScenario=new Dialog_chooseScenario();
+                    dialog_chooseScenario.show(getActivity().getSupportFragmentManager(),"Taptostart");
                     dialog_chooseScenario.setoutdoorOnclickListener(new Dialog_chooseScenario.onOutdoorOnclickListener() {
                         @Override
                         public void onOutdoorClick() {
@@ -331,9 +336,9 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
                             //Taptostart.setText("0 BPM");
                             Taptostart.setText("0 \n BPM");
                             musicService.playOrPause();
-
                             exerciseService.updateRunnable.run();
                             updatedatarunnable.run();
+                            Taptostart.setEnabled(false);
 
                             running=true;
                             pause.setVisibility(View.VISIBLE);
@@ -349,22 +354,25 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
                             Flag=false;
                             SendFlagtoActivity(Flag);
                             musicService.playOrPause();
-                            Taptostart.setVisibility(View.GONE);
+                            Taptostart.setEnabled(false);
+                            Taptostart.setText("");
+
                             speed.setVisibility(View.VISIBLE);
                             speed_seekbar.setVisibility(View.VISIBLE);
                             speed_seekbar.setProgress(0);
+
                             pause.setVisibility(View.VISIBLE);
                             stop.setVisibility(View.VISIBLE);
 
                             exerciseService.updateRunnable.run();
                             updatedatarunnable.run();
+                            Log.d("Flag2",String.valueOf(Flag));
 
                             dialog_chooseScenario.dismiss();
                         }
                     });
-                    dialog_chooseScenario.show(getActivity().getSupportFragmentManager(),"Taptostart");
                 }
-            }
+
         });
 
         pause.setOnClickListener(new View.OnClickListener() {
