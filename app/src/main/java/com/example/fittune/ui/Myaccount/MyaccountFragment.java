@@ -18,7 +18,7 @@ import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.fittune.ExerciseStats;
+import com.example.fittune.Model.ExerciseStats;
 import com.example.fittune.LoginActivity;
 import com.example.fittune.R;
 import com.example.fittune.Model.UploadFile;
@@ -121,26 +121,8 @@ public class MyaccountFragment extends Fragment implements MyaccountViewAdapter.
         return root;
     }
     private void loadGallery() {
-        //TODO photolist doesn't update coming back from photocaption
-
         Query photoTimeOrderDescend = firestoreDB.collection("Exercise")
                 .orderBy("timeStamp", Query.Direction.DESCENDING);
-        /*photoTimeOrderDescend.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if(task.isSuccessful()){
-                    mUploads.clear();
-                    for (QueryDocumentSnapshot document : task.getResult()){
-                        UploadFile userPhoto = document.toObject(UploadFile.class);
-                        mUploads.add(userPhoto);
-                    }
-                }else{
-                    Log.d(TAG, "Error getting documents:", task.getException());
-                }
-                mAdapter = new GlobalViewAdapter(mUploads,onPicListener);
-                recyclerView.setAdapter(mAdapter);
-            }
-        });*/
         //realtime updates
         photoTimeOrderDescend.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override

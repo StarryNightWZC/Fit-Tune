@@ -16,10 +16,6 @@
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
-
-    <style name="PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
-
     <style name="CustomSeekbarStyle" >
         <item name="android:maxHeight">8dp</item>
         <item name="android:indeterminateOnly">false</item>
