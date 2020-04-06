@@ -8,7 +8,7 @@ import android.os.Bundle;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.fittune.ExerciseStats;
+import com.example.fittune.Model.ExerciseStats;
 import com.example.fittune.R;
 import com.example.fittune.Model.Userprofile;
 import com.github.mikephil.charting.charts.BarChart;

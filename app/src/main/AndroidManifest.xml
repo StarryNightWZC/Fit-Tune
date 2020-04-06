@@ -30,10 +30,6 @@
         <activity
             android:name=".ui.Myaccount.MyaccountStatsActivity"
             android:parentActivityName=".MainActivity" />
-        <activity
-            android:name=".ExerciseStatsActivity"
-            android:label="@string/title_activity_exercise_stats"
-            android:theme="@style/NoActionBar" />
         <activity android:name=".SignedInActivity" />
         <activity android:name=".RegisterActivity" />
         <activity
@@ -45,11 +41,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <activity
-            android:name=".ProfileActivity"
-            android:label="@string/title_activity_profile"
-            android:theme="@style/NoActionBar" />
 
         <service
             android:name=".Service.MusicService"

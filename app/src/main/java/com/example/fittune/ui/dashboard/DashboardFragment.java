@@ -38,8 +38,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.fittune.Adapter.ExerciseblockAdapter;
 import com.example.fittune.Dialog_Edit;
 import com.example.fittune.Dialog_chooseScenario;
-import com.example.fittune.ExerciseBlock;
-import com.example.fittune.ExerciseStats;
+import com.example.fittune.Model.ExerciseBlock;
+import com.example.fittune.Model.ExerciseStats;
 import com.example.fittune.MainActivity;
 import com.example.fittune.Service.ExerciseService;
 import com.example.fittune.Service.MusicService;
@@ -62,8 +62,10 @@ import com.google.firebase.storage.UploadTask;
 import java.io.File;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.time.DayOfWeek;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -394,7 +396,7 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
                 note.put("duration", String.valueOf(temp));
                 firestoreDB.collection("Users").document(userID).update(note);
                 //update stats
-                updateStats();
+                updateStats(temp);
                 //upload stats
                 uploadStats();
 
@@ -559,7 +561,7 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
         }
     }
 
-    private void updateStats(){
+    private void updateStats(final double distanceIncrement){
 
         firestoreDB.collection("Users").document(userID).get()
                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -569,11 +571,66 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
                             DocumentSnapshot document=task.getResult();
                             if(document.exists()){
                                 Userprofile profile=document.toObject(Userprofile.class);
-                                double savedistance = Float.valueOf(profile.getDuration()) + Float.valueOf(profile.getDistance());
-                                savedistance = Math.round(savedistance* 100.0) / 100.0;
-                                Map<String, Object> note = new HashMap<>();
-                                note.put("distance", String.valueOf(savedistance));
-                                firestoreDB.collection("Users").document(userID).update(note);
+
+                                Calendar calendar = Calendar.getInstance();
+                                int day = calendar.get(Calendar.DAY_OF_WEEK);
+                                double updated_distance;
+                                if (day == Calendar.MONDAY){
+                                    updated_distance = distanceIncrement + Float.valueOf(profile.getMon());
+                                    updated_distance = Math.round(updated_distance * 100.0) / 100.0;
+                                    Map<String, Object> note = new HashMap<>();
+                                    note.put("mon", String.valueOf(updated_distance));
+                                    firestoreDB.collection("Users").document(userID).update(note);
+                                }
+                                if (day == Calendar.TUESDAY){
+                                    updated_distance = distanceIncrement + Float.valueOf(profile.getTue());
+                                    updated_distance = Math.round(updated_distance * 100.0) / 100.0;
+                                    Map<String, Object> note = new HashMap<>();
+                                    note.put("tue", String.valueOf(updated_distance));
+                                    firestoreDB.collection("Users").document(userID).update(note);
+                                }
+                                if (day == Calendar.WEDNESDAY){
+                                    updated_distance = distanceIncrement + Float.valueOf(profile.getWed());
+                                    updated_distance = Math.round(updated_distance * 100.0) / 100.0;
+                                    Map<String, Object> note = new HashMap<>();
+                                    note.put("wed", String.valueOf(updated_distance));
+                                    firestoreDB.collection("Users").document(userID).update(note);
+                                }
+                                if (day == Calendar.THURSDAY){
+                                    updated_distance = distanceIncrement + Float.valueOf(profile.getThu());
+                                    updated_distance = Math.round(updated_distance * 100.0) / 100.0;
+                                    Map<String, Object> note = new HashMap<>();
+                                    note.put("thu", String.valueOf(updated_distance));
+                                    firestoreDB.collection("Users").document(userID).update(note);
+                                }
+                                if (day == Calendar.FRIDAY){
+                                    updated_distance = distanceIncrement + Float.valueOf(profile.getFri());
+                                    updated_distance = Math.round(updated_distance * 100.0) / 100.0;
+                                    Map<String, Object> note = new HashMap<>();
+                                    note.put("fri", String.valueOf(updated_distance));
+                                    firestoreDB.collection("Users").document(userID).update(note);
+                                }
+                                if (day == Calendar.SATURDAY){
+                                    updated_distance = distanceIncrement + Float.valueOf(profile.getSat());
+                                    updated_distance = Math.round(updated_distance * 100.0) / 100.0;
+                                    Map<String, Object> note = new HashMap<>();
+                                    note.put("sat", String.valueOf(updated_distance));
+                                    firestoreDB.collection("Users").document(userID).update(note);
+                                }
+                                if (day == Calendar.SUNDAY){
+                                    updated_distance = distanceIncrement + Float.valueOf(profile.getSun());
+                                    updated_distance = Math.round(updated_distance * 100.0) / 100.0;
+                                    Map<String, Object> note = new HashMap<>();
+                                    note.put("sun", String.valueOf(updated_distance));
+                                    firestoreDB.collection("Users").document(userID).update(note);
+                                }
+                                /////////////////////////
+                                //double savedistance = Float.valueOf(profile.getDuration()) + Float.valueOf(profile.getDistance());
+                                //savedistance = Math.round(savedistance* 100.0) / 100.0;
+                                //Map<String, Object> note = new HashMap<>();
+                                //note.put("distance", String.valueOf(savedistance));
+                                //firestoreDB.collection("Users").document(userID).update(note);
+                                /////////////////////////
                             }else{
                             }
                         }else{

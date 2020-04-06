@@ -9,7 +9,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.fittune.ExerciseBlock;
+import com.example.fittune.Model.ExerciseBlock;
 import com.example.fittune.R;
 
 import java.util.List;

@@ -94,15 +94,6 @@ public class GalleryFragment extends Fragment implements GlobalViewAdapter.OnPic
                 ViewModelProviders.of(this).get(GalleryViewModel.class);
         View root = inflater.inflate(R.layout.fragment_gallery, container, false);
 
-        /*profileAlice = root.findViewById(R.id.exerciseProfileImage);
-        profileAlice.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(getActivity(), ProfileActivity.class);
-                startActivity(intent);
-            }
-        });*/
-
         mUploads = new ArrayList<>();
 
         recyclerView = root.findViewById(R.id.recyclerView);
@@ -140,26 +131,8 @@ public class GalleryFragment extends Fragment implements GlobalViewAdapter.OnPic
     }
 
     private void loadGallery() {
-        //TODO photolist doesn't update coming back from photocaption
-
         Query photoTimeOrderDescend = firestoreDB.collection("Users")
                 .orderBy("distance", Query.Direction.DESCENDING);
-        /*photoTimeOrderDescend.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if(task.isSuccessful()){
-                    mUploads.clear();
-                    for (QueryDocumentSnapshot document : task.getResult()){
-                        UploadFile userPhoto = document.toObject(UploadFile.class);
-                        mUploads.add(userPhoto);
-                    }
-                }else{
-                    Log.d(TAG, "Error getting documents:", task.getException());
-                }
-                mAdapter = new GlobalViewAdapter(mUploads,onPicListener);
-                recyclerView.setAdapter(mAdapter);
-            }
-        });*/
         //realtime updates
         photoTimeOrderDescend.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override

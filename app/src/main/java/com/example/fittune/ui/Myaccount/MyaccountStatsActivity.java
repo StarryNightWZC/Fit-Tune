@@ -10,7 +10,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.widget.TextView;
 
-import com.example.fittune.ExerciseStats;
+import com.example.fittune.Model.ExerciseStats;
 import com.example.fittune.R;
 import com.example.fittune.Model.UploadFile;
 import com.github.mikephil.charting.charts.LineChart;
