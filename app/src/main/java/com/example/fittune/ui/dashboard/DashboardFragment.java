@@ -346,6 +346,11 @@ public class DashboardFragment extends Fragment  {
                 //upload stats
                 uploadStats();
 
+                //todo: Upload average Speed
+
+
+                averagespeedtenseconds.clear();
+
                 Flag=true;
                 SendFlagtoActivity(Flag);
 
@@ -442,7 +447,10 @@ public class DashboardFragment extends Fragment  {
             if(musicService.exercisetype==1){
                 int cadence=musicService.cadence;
                 if(pause.getText()!="Play"){
-                    speedtemp.add((double) exerciseService.currentspeed);
+                    Integer currentcadence=musicService.cadence;
+                    Double currentspeed=currentcadence*0.5*60/1000;
+                    exerciseService.currentspeed=currentspeed;
+                    speedtemp.add((double) currentspeed);
                 }else {
                     speedtemp.add(0.0);
                 }
@@ -458,12 +466,11 @@ public class DashboardFragment extends Fragment  {
 
             }
 
-
-
             updateHandler.postDelayed(this,100);
         }
     };
 
+    //todo: Save average speed in ten seconds
     //Calculate average speed in ten seconds
     private Runnable calculateaveragespeed=new Runnable() {
         @Override

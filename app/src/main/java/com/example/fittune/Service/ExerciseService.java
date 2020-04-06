@@ -55,7 +55,7 @@ public class ExerciseService extends Service{
     public static int exerciseTypeFlag=0;
     public static float seedseekbarvalue=0;
     public static int currentcadence=0;
-    public float currentspeed=0;
+    public double currentspeed;
 
 
 
@@ -90,8 +90,7 @@ public class ExerciseService extends Service{
         public void run() {
             if(exerciseTypeFlag==1){
                 //Current Speed
-                currentspeed= (float) (currentcadence*0.5*60/1000);
-                //Log.d("CurrentSpeed",String.valueOf(currentspeed));
+                //Double cur=(currentcadence*0.5*60/1000);
                 //Distance
                 intervaldistance=currentspeed*1/3600;
                 totaldistance+=intervaldistance;
@@ -120,10 +119,8 @@ public class ExerciseService extends Service{
                 totalsecond+=1;
                 currentpace=CalculateCunrrentpace(totalsecond);
                // String totalsecond=getChronometerSeconds(durationtimer);
-
-
-
             }
+
         }
     };
 
