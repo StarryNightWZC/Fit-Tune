@@ -64,7 +64,6 @@ public class MyaccountStatsActivity extends AppCompatActivity {
 
     private PieChart pieChart;
     private LineChart lineChart;
-    //private BarChart barChart;
 
     private TextView distance;
     private TextView pace;
@@ -97,35 +96,22 @@ public class MyaccountStatsActivity extends AppCompatActivity {
 
         pieChart = findViewById(R.id.piechart);
         lineChart = findViewById(R.id.linechart);
-        //barChart = findViewById(R.id.barchart);
-
-        //create pie chart
-        createPieChart();
-        //create line chart
-        createLineChart();
-        //create barchart
-        //createBarChart();
 
         loadStats();
 
     }
 
-    public void createPieChart(){
-        ArrayList NoOfEmp = new ArrayList();
-
-        List<PieEntry> entries = new ArrayList<>();
-        entries.add(new PieEntry(18.5f, "High"));
-        entries.add(new PieEntry(26.7f, "Medium"));
-        entries.add(new PieEntry(24.0f, "Low"));
+    public void createPieChart(List<PieEntry> entries){
         PieDataSet set = new PieDataSet(entries, "Workout Intensity");
         PieData data = new PieData(set);
         pieChart.setData(data);
         set.setColors(ColorTemplate.COLORFUL_COLORS);
         set.setDrawValues(false);
-        pieChart.animateXY(500, 500);
+        pieChart.animateXY(1000, 1000);
         pieChart.invalidate();
 
         Legend l = pieChart.getLegend();
+        l.setEnabled(false);
         l.setFormSize(10f); // set the size of the legend forms/shapes
         l.setForm(Legend.LegendForm.CIRCLE); // set what type of form/shape should be used
         l.setVerticalAlignment(Legend.LegendVerticalAlignment.CENTER);
@@ -141,112 +127,59 @@ public class MyaccountStatsActivity extends AppCompatActivity {
         description.setEnabled(false);
     }
 
-//    public void createBarChart(){
-//        List<BarEntry> entries = new ArrayList<>();
-//        entries.add(new BarEntry(0f, 30f));
-//        entries.add(new BarEntry(1f, 80f));
-//        entries.add(new BarEntry(2f, 60f));
-//        entries.add(new BarEntry(3f, 50f));
-//        // gap of 2f
-//        entries.add(new BarEntry(5f, 70f));
-//        entries.add(new BarEntry(6f, 60f));
-//        BarDataSet set = new BarDataSet(entries, "Distance");
-//        BarData data = new BarData(set);
-//        data.setBarWidth(0.9f); // set custom bar width
-//        barChart.setData(data);
-//        barChart.setFitBars(true); // make the x-axis fit exactly all bars
-//        barChart.invalidate();
-//
-//        barChart.animateY(500);
-//        set.setColors(ColorTemplate.COLORFUL_COLORS);
-//
-//        barChart.getAxisLeft().setDrawLabels(false);
-//        barChart.getAxisRight().setDrawLabels(false);
-//        barChart.getXAxis().setDrawLabels(false);
-//        barChart.getLegend().setEnabled(false);
-//
-//        Description description = barChart.getDescription();
-//        description.setEnabled(false);
-//    }
-    public void createLineChart(){
+    public void createLineChart(ArrayList<Entry> values) {
+        lineChart.setTouchEnabled(true);
+        lineChart.setPinchZoom(true);
+        Description description = lineChart.getDescription();
+        description.setEnabled(true);
+        description.setText("time/s");
 
-        final Context ctx = this;
-        firestoreDB.collection("Exercise").document(docRef).get()
-                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if(task.isSuccessful()){
-                            DocumentSnapshot document=task.getResult();
-                            if(document.exists()){
-                                lineChart.setTouchEnabled(true);
-                                lineChart.setPinchZoom(true);
-                                Description description = lineChart.getDescription();
-                                description.setEnabled(true);
-                                description.setText("time/s");
+        lineChart.animateY(1000);
+        lineChart.getAxisLeft().setDrawLabels(false);
+        lineChart.getAxisLeft().setDrawAxisLine(false);
+        lineChart.getAxisRight().setDrawLabels(false);
+        lineChart.getAxisRight().setDrawAxisLine(false);
+        lineChart.getXAxis().setDrawLabels(true);
+        lineChart.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
+        lineChart.getLegend().setEnabled(false);
+        lineChart.getAxisRight().setDrawGridLines(false);
+        lineChart.getAxisLeft().setDrawGridLines(false);
+        lineChart.getXAxis().setDrawGridLines(false);
+        lineChart.setDrawBorders(false);
 
-                                lineChart.animateY(500);
-                                lineChart.getAxisLeft().setDrawLabels(false);
-                                lineChart.getAxisLeft().setDrawAxisLine(false);
-                                lineChart.getAxisRight().setDrawLabels(false);
-                                lineChart.getAxisRight().setDrawAxisLine(false);
-                                lineChart.getXAxis().setDrawLabels(true);
-                                lineChart.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
-                                lineChart.getLegend().setEnabled(false);
-                                lineChart.getAxisRight().setDrawGridLines(false);
-                                lineChart.getAxisLeft().setDrawGridLines(false);
-                                lineChart.getXAxis().setDrawGridLines(false);
-                                lineChart.setDrawBorders(false);
-                                ArrayList<Entry> values = new ArrayList<>();
-
-                                ExerciseStats exerciseStats=document.toObject(ExerciseStats.class);
-
-                                int i = 0;
-                                values.add(new Entry(0, 0));
-                                for (String stat : exerciseStats.getAveragespeedtenseconds()) {
-                                    float speed = Float.valueOf(stat);
-                                    i += 5;
-                                    values.add(new Entry(i, speed));
-                                }
-
-                                LineDataSet set1;
-                                if (lineChart.getData() != null &&
-                                        lineChart.getData().getDataSetCount() > 0) {
-                                    set1 = (LineDataSet) lineChart.getData().getDataSetByIndex(0);
-                                    set1.setValues(values);
-                                    lineChart.getData().notifyDataChanged();
-                                    lineChart.notifyDataSetChanged();
-                                } else {
-                                    set1 = new LineDataSet(values, "Sample Data");
-                                    set1.setDrawIcons(false);
-                                    set1.enableDashedLine(10f, 5f, 0f);
-                                    set1.enableDashedHighlightLine(10f, 5f, 0f);
-                                    set1.setColor(Color.DKGRAY);
-                                    set1.setCircleColor(Color.DKGRAY);
-                                    set1.setLineWidth(1f);
-                                    set1.setCircleRadius(5f);
-                                    set1.setDrawCircleHole(false);
-                                    set1.setValueTextSize(9f);
-                                    set1.setDrawFilled(true);
-                                    set1.setFormLineWidth(1f);
-                                    set1.setFormLineDashEffect(new DashPathEffect(new float[]{10f, 5f}, 0f));
-                                    set1.setFormSize(15.f);
-                                    if (Utils.getSDKInt() >= 18) {
-                                        Drawable drawable = ContextCompat.getDrawable(ctx, R.drawable.fade_blue);
-                                        set1.setFillDrawable(drawable);
-                                    } else {
-                                        set1.setFillColor(Color.DKGRAY);
-                                    }
-                                    ArrayList<ILineDataSet> dataSets = new ArrayList<>();
-                                    dataSets.add(set1);
-                                    LineData data = new LineData(dataSets);
-                                    lineChart.setData(data);
-                                }
-                            }else{
-                            }
-                        }else{
-                        }
-                    }
-                });
+        LineDataSet set1;
+        if (lineChart.getData() != null &&
+                lineChart.getData().getDataSetCount() > 0) {
+            set1 = (LineDataSet) lineChart.getData().getDataSetByIndex(0);
+            set1.setValues(values);
+            lineChart.getData().notifyDataChanged();
+            lineChart.notifyDataSetChanged();
+        } else {
+            set1 = new LineDataSet(values, "Sample Data");
+            set1.setDrawIcons(false);
+            set1.enableDashedLine(10f, 5f, 0f);
+            set1.enableDashedHighlightLine(10f, 5f, 0f);
+            set1.setColor(Color.DKGRAY);
+            set1.setCircleColor(Color.DKGRAY);
+            set1.setLineWidth(1f);
+            set1.setCircleRadius(5f);
+            set1.setDrawCircleHole(false);
+            set1.setValueTextSize(9f);
+            set1.setDrawFilled(true);
+            set1.setFormLineWidth(1f);
+            set1.setFormLineDashEffect(new DashPathEffect(new float[]{10f, 5f}, 0f));
+            set1.setFormSize(15.f);
+            if (Utils.getSDKInt() >= 18) {
+                Drawable drawable = ContextCompat.getDrawable(this, R.drawable.fade_blue);
+                set1.setFillDrawable(drawable);
+            } else {
+                set1.setFillColor(Color.DKGRAY);
+            }
+            ArrayList<ILineDataSet> dataSets = new ArrayList<>();
+            dataSets.add(set1);
+            LineData data = new LineData(dataSets);
+            lineChart.setData(data);
+        }
     }
 
     private void loadStats(){
@@ -257,11 +190,37 @@ public class MyaccountStatsActivity extends AppCompatActivity {
                         if(task.isSuccessful()){
                             DocumentSnapshot document=task.getResult();
                             if(document.exists()){
-                                ExerciseStats profile=document.toObject(ExerciseStats.class);
-                                distance.setText(Double.toString(profile.getDistance())+"km");
-                                pace.setText(profile.getPace());
-                                duration.setText(profile.getDuration());
-                                calories.setText(Double.toString(profile.getCalories())+"kcal");
+                                ExerciseStats stats=document.toObject(ExerciseStats.class);
+                                distance.setText(Double.toString(stats.getDistance())+"km");
+                                pace.setText(stats.getPace());
+                                duration.setText(stats.getDuration());
+                                calories.setText(Double.toString(stats.getCalories())+"kcal");
+                                //LineChart Data
+                                ArrayList<Entry> lineChartEntries = new ArrayList<>();
+                                int i = 0;
+                                lineChartEntries.add(new Entry(0, 0));
+                                float high = 0.5f;
+                                float medium = 0.5f;
+                                float low = 0.5f;
+                                for (String stat : stats.getAveragespeedtenseconds()) {
+                                    float speed = Float.valueOf(stat);
+                                    if(speed <= 5.0f){
+                                        low += 1.0f;
+                                    }else if(speed < 10.0f){
+                                        medium += 1.0f;
+                                    }else{
+                                        high += 1.0f;
+                                    }
+                                    i += 5;
+                                    lineChartEntries.add(new Entry(i, speed));
+                                }
+                                //Piechart Data
+                                List<PieEntry> pieChartEntries = new ArrayList<>();
+                                pieChartEntries.add(new PieEntry(high, "High"));
+                                pieChartEntries.add(new PieEntry(medium, "Medium"));
+                                pieChartEntries.add(new PieEntry(low, "Low"));
+                                createLineChart(lineChartEntries);
+                                createPieChart(pieChartEntries);
                             }else{
                             }
                         }else{
@@ -269,6 +228,4 @@ public class MyaccountStatsActivity extends AppCompatActivity {
                     }
                 });
     }
-
-
 }

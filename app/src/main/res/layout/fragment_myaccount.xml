@@ -38,7 +38,13 @@
         android:background="@color/cardview_bg"
         android:id="@+id/exerciseRecyclerView"
         android:layout_below="@+id/Myaccount"
-        android:layout_alignParentBottom="true"/>
+        android:layout_above="@id/placeholderBottomNav"/>
+    <View
+        android:id="@+id/placeholderBottomNav"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_alignParentBottom="true">
+    </View>
 
     <!--
     <TextView
