@@ -110,12 +110,13 @@ public class ExerciseService extends Service {
         Log.d("InstanceState","Exerciseservice init");
         try {
 
+            /*
             sensorManager=(SensorManager)getSystemService(Context.SENSOR_SERVICE);
             accSensor=sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
             accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
             sensorManager.registerListener((SensorEventListener) this, accSensor, SensorManager.SENSOR_DELAY_NORMAL);
-            sensorManager.registerListener((SensorEventListener) this, accelerometer, SensorManager.SENSOR_DELAY_GAME);
+            sensorManager.registerListener((SensorEventListener) this, accelerometer, SensorManager.SENSOR_DELAY_GAME);*/
 
             //init rolling average for linear acceleration on xyz axis
             rollingAverage[0] = new ArrayList<Float>();
@@ -270,7 +271,7 @@ public class ExerciseService extends Service {
         return total;
     }
 
-  
+
     public void onSensorChanged(SensorEvent event) {
         if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
             Acceleration acceleration = new Acceleration();

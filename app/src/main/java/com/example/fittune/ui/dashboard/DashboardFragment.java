@@ -266,13 +266,13 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
         musicService = new MusicService();
         exerciseService=new ExerciseService();
 
-        /*
+
         exerciseService.sensorManager=(SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
         exerciseService.accSensor=exerciseService.sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
         exerciseService.accelerometer = exerciseService.sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
         exerciseService.sensorManager.registerListener(this, exerciseService.accSensor, SensorManager.SENSOR_DELAY_NORMAL);
-        exerciseService.sensorManager.registerListener(this, exerciseService.accelerometer, SensorManager.SENSOR_DELAY_GAME);*/
+        exerciseService.sensorManager.registerListener(this, exerciseService.accelerometer, SensorManager.SENSOR_DELAY_GAME);
 
 
 
