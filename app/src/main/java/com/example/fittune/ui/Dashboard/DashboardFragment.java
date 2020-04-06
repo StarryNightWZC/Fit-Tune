@@ -428,7 +428,7 @@ public class DashboardFragment extends Fragment  {
                 int cadence=musicService.cadence;
                 if(pause.getText()!="Play"){
                     Integer currentcadence=musicService.cadence;
-                    Double currentspeed=currentcadence*0.5*60/1000;
+                    Double currentspeed=currentcadence*0.8*60/1000;
                     exerciseService.currentspeed=currentspeed;
                     speedtemp.add((double) currentspeed);
                 }else {
@@ -463,14 +463,9 @@ public class DashboardFragment extends Fragment  {
                 Log.d("Averagespeed",speed);
             }
 
-
-            CalculateAverageSpeed.postDelayed(this,10000);
+            CalculateAverageSpeed.postDelayed(this,5000);
         }
     };
-
-
-
-
 
 
     private void UpdateValue(int i){
