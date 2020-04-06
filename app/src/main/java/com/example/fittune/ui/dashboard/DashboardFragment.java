@@ -630,6 +630,15 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
                                     note.put("sun", String.valueOf(updated_distance));
                                     firestoreDB.collection("Users").document(userID).update(note);
                                 }
+                                double totalUpdatedDistance = 0;
+                                totalUpdatedDistance += Float.valueOf(profile.getMon())+Float.valueOf(profile.getTue())+
+                                        Float.valueOf(profile.getWed())+Float.valueOf(profile.getThu())+Float.valueOf(profile.getFri())+
+                                        Float.valueOf(profile.getSat())+Float.valueOf(profile.getSun());
+                                totalUpdatedDistance = Math.round(totalUpdatedDistance * 100.0) / 100.0;
+                                Map<String, Object> note = new HashMap<>();
+                                note.put("distance", String.valueOf(totalUpdatedDistance));
+                                firestoreDB.collection("Users").document(userID).update(note);
+
                                 /////////////////////////
                                 //double savedistance = Float.valueOf(profile.getDuration()) + Float.valueOf(profile.getDistance());
                                 //savedistance = Math.round(savedistance* 100.0) / 100.0;
