@@ -6,12 +6,33 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_marginTop="20dp"
+        android:text="Workout Intensity Composition"
+        android:textSize="18sp"
+        android:textColor="@color/black"
+        android:textStyle="bold">
+    </TextView>
+
     <com.github.mikephil.charting.charts.PieChart
         android:id="@+id/piechart"
         android:layout_width="400dp"
         android:layout_height="200dp"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="20dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="Running Speed Variation"
+        android:textSize="18sp"
+        android:textColor="@color/black"
+        android:textStyle="bold">
+    </TextView>
 
     <com.github.mikephil.charting.charts.LineChart
         android:id="@+id/linechart"
