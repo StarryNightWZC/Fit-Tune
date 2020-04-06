@@ -51,7 +51,7 @@ public class MusicService extends Service {
                 Song_info.put(i,p); }
 
             String init_path=getrandommusic(1,Song_info);
-            Log.d("InstanceStateinit",init_path);
+            //Log.d("InstanceStateinit",init_path);
 
             mediaPlayer.reset();
             mediaPlayer.setDataSource(init_path);
@@ -135,7 +135,7 @@ public class MusicService extends Service {
         try {
             //path=Songinfo.get(type);
             path=getrandommusic(type,Song_info);
-            Log.d("InstanceState",path);
+            //Log.d("InstanceState",path);
             mediaPlayer.reset();
             mediaPlayer.setDataSource(path);
             mediaPlayer.prepare();
