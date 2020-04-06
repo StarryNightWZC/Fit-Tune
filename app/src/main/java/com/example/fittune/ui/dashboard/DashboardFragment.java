@@ -126,6 +126,8 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
 
     private boolean running=false;
 
+    private String musicstyle;
+
     private Boolean isdistance=false,isfatburning=false,ispace=false,isduration=false;
     private Boolean isedm=false,isclassic=false,ispop=false;
 
@@ -306,8 +308,8 @@ public class DashboardFragment extends Fragment implements SensorEventListener {
                     public void onDoneClick(StringBuilder sb,StringBuilder music) {
                         String [] temp = null;
                         String exercisetemps = sb.toString();
-                        String musictemps=music.toString();
-                        SetChoicevalue(exercisetemps,musictemps,false);
+                        musicstyle=music.toString();
+                        SetChoicevalue(exercisetemps,musicstyle,false);
                         dialog_edit.dismiss();
                     }
                 });
