@@ -106,7 +106,7 @@ public class MyaccountStatsActivity extends AppCompatActivity {
         //create barchart
         //createBarChart();
 
-        loadProfile(userID);
+        loadStats();
 
     }
 
@@ -171,7 +171,7 @@ public class MyaccountStatsActivity extends AppCompatActivity {
     public void createLineChart(){
 
         final Context ctx = this;
-        firestoreDB.collection("Exercise").document(userID).get()
+        firestoreDB.collection("Exercise").document(docRef).get()
                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -202,10 +202,6 @@ public class MyaccountStatsActivity extends AppCompatActivity {
                                     i += 10;
                                     values.add(new Entry(i, speed));
                                 }
-                                //values.add(new Entry(1, 50));
-                                //values.add(new Entry(2, 100));
-                                //values.add(new Entry(3, 70));
-                                //values.add(new Entry(4, 20));
 
                                 LineDataSet set1;
                                 if (lineChart.getData() != null &&
@@ -240,9 +236,6 @@ public class MyaccountStatsActivity extends AppCompatActivity {
                                     LineData data = new LineData(dataSets);
                                     lineChart.setData(data);
                                 }
-                                Userprofile profile=document.toObject(Userprofile.class);
-                                //username.setText(profile.getName());
-
                             }else{
                             }
                         }else{
@@ -251,7 +244,7 @@ public class MyaccountStatsActivity extends AppCompatActivity {
                 });
     }
 
-    private void loadProfile(String userID){
+    private void loadStats(){
         firestoreDB.collection("Exercise").document(docRef).get()
                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
