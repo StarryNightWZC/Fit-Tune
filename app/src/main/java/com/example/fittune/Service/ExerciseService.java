@@ -172,9 +172,6 @@ public class ExerciseService extends Service{
     //********Calculate Cadence********//
     //---------------------------------//
 
-
-
-
     /**
      * 服务销毁时的回调
      */

@@ -204,7 +204,7 @@ public class MyaccountStatsActivity extends AppCompatActivity {
                                 values.add(new Entry(0, 0));
                                 for (String stat : exerciseStats.getAveragespeedtenseconds()) {
                                     float speed = Float.valueOf(stat);
-                                    i += 10;
+                                    i += 5;
                                     values.add(new Entry(i, speed));
                                 }
 

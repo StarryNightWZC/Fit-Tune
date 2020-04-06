@@ -81,14 +81,14 @@ public class MusicService extends Service implements SensorEventListener {
     }
 
     public static Integer currentsong=0;
-    public MediaPlayer mediaPlayer;
+    public MediaPlayer mediaPlayer=new MediaPlayer();
     public MusicService() {
         initMediaPlayer();
     }
 
     private int count=0;
 
-
+    public Integer musicflago=0;
     private HashMap<Integer, List> Song_info=new HashMap<>();
 
 
@@ -116,16 +116,30 @@ public class MusicService extends Service implements SensorEventListener {
             //Log.d("InstanceStateinit",init_path);
 
             Log.d("InstanceState","InitMediaplayer");
+
             mediaPlayer=new MediaPlayer();
             mediaPlayer.reset();
             mediaPlayer.setDataSource(init_path);
             mediaPlayer.prepare();
             currentsong=1;
-            //mediaPlayer.setLooping(true);  // 设置循环播放
+            mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mp) {
+                    try{
+                        playnewmusic(musicflago);
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+                }
+            });
+
+
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
+
 
     private List Listdir(File f,int type){
         List<String> filelist=new ArrayList<String>();
@@ -272,8 +286,11 @@ public class MusicService extends Service implements SensorEventListener {
         if(mediaPlayer != null) {
             mediaPlayer.pause();
             mediaPlayer.stop();
+            mediaPlayer.reset();
 
             try {
+                String init_path=getrandommusic(1,Song_info);
+                mediaPlayer.setDataSource(init_path);
                 //mediaPlayer.reset();//
                 mediaPlayer.prepare();
                // mediaPlayer.release();
@@ -357,15 +374,15 @@ public class MusicService extends Service implements SensorEventListener {
                 cadence = getCurrentcadence();
                 if(mediaPlayer.isPlaying()){
                     if(cadence<100) {
-                        Integer flago=1;
+                        musicflago=1;
                         if(!currentsong.equals(1)){
-                            changemusic(flago);
+                            changemusic(musicflago);
                         }
                         change_music_speed(cadence,65,1);
                     }else {
-                        Integer flago=2;
+                        musicflago=2;
                         if(!currentsong.equals(2)){
-                            changemusic(flago);
+                            changemusic(musicflago);
                         }
                         change_music_speed(cadence,115,1);
                     }
@@ -503,8 +520,6 @@ public class MusicService extends Service implements SensorEventListener {
     //------------------------------------------------------//
     @Override
     public void onDestroy() {
-
-
         if(mediaPlayer != null){
             mediaPlayer.stop();
             mediaPlayer.reset();

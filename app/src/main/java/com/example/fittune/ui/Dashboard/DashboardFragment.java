@@ -364,6 +364,7 @@ public class DashboardFragment extends Fragment  {
                 if(!Flag){
                     if(seedseekbarvalue<=6&&seedseekbarvalue>=0){
                         flag=1;
+                        musicService.musicflago=1;
                         if(!musicService.currentsong.equals(1)){
                             musicService.changemusic(flag);
                         }else {
@@ -371,6 +372,7 @@ public class DashboardFragment extends Fragment  {
                         }
                     }else if(seedseekbarvalue<=12&&seedseekbarvalue>6){
                         flag=2;
+                        musicService.musicflago=2;
                         if(!musicService.currentsong.equals(2)){
                             musicService.changemusic(flag);
                         }else {
@@ -378,6 +380,7 @@ public class DashboardFragment extends Fragment  {
                         }
                     }else{
                         flag=3;
+                        musicService.musicflago=3;
                         if(!musicService.currentsong.equals(3)){
                             musicService.changemusic(flag);
                         }else {
