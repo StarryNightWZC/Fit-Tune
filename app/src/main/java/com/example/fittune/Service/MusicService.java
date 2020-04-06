@@ -81,7 +81,7 @@ public class MusicService extends Service implements SensorEventListener {
     }
 
     public static Integer currentsong=0;
-    public static MediaPlayer mediaPlayer = new MediaPlayer();
+    public MediaPlayer mediaPlayer;
     public MusicService() {
         initMediaPlayer();
     }
@@ -103,7 +103,7 @@ public class MusicService extends Service implements SensorEventListener {
 
     public void initMediaPlayer() {
 
-        Log.d("InstanceState","InitMediaplayer");
+
         try {
             /////////////////Test
             for (int i=1;i<4;i++){
@@ -115,6 +115,8 @@ public class MusicService extends Service implements SensorEventListener {
             String init_path=getrandommusic(1,Song_info);
             //Log.d("InstanceStateinit",init_path);
 
+            Log.d("InstanceState","InitMediaplayer");
+            mediaPlayer=new MediaPlayer();
             mediaPlayer.reset();
             mediaPlayer.setDataSource(init_path);
             mediaPlayer.prepare();
@@ -272,8 +274,9 @@ public class MusicService extends Service implements SensorEventListener {
             mediaPlayer.stop();
 
             try {
-               // mediaPlayer.reset();//
+                //mediaPlayer.reset();//
                 mediaPlayer.prepare();
+               // mediaPlayer.release();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -331,7 +334,7 @@ public class MusicService extends Service implements SensorEventListener {
     @Override
     public void onSensorChanged(SensorEvent event) {
         if(exercisetype==1) {
-            Log.d("InstanceState", "onSensorChanged");
+            //Log.d("InstanceState", "onSensorChanged");
             if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
                 Acceleration acceleration = new Acceleration();
                 acceleration.timestamp = event.timestamp;
@@ -504,6 +507,7 @@ public class MusicService extends Service implements SensorEventListener {
 
         if(mediaPlayer != null){
             mediaPlayer.stop();
+            mediaPlayer.reset();
             mediaPlayer.release();
             Log.d("InstanceStateinit","musicservicedestroy");
         }
