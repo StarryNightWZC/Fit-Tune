@@ -81,7 +81,7 @@ public class MusicService extends Service implements SensorEventListener {
     }
 
     public static Integer currentsong=0;
-    public static MediaPlayer mediaPlayer = new MediaPlayer();
+    public MediaPlayer mediaPlayer;
     public MusicService() {
         initMediaPlayer();
     }
@@ -108,13 +108,14 @@ public class MusicService extends Service implements SensorEventListener {
             /////////////////Test
             for (int i=1;i<4;i++){
                 List<String> p=new ArrayList<String>();
-                File root=new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath()+'/'+String.valueOf(i));
+                File root=new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getAbsolutePath()+'/'+String.valueOf(i));
                 p=Listdir(root,i);
                 Song_info.put(i,p); }
 
             String init_path=getrandommusic(1,Song_info);
             //Log.d("InstanceStateinit",init_path);
 
+            mediaPlayer=new MediaPlayer();
             mediaPlayer.reset();
             mediaPlayer.setDataSource(init_path);
             mediaPlayer.prepare();
@@ -272,8 +273,9 @@ public class MusicService extends Service implements SensorEventListener {
             mediaPlayer.stop();
 
             try {
-               // mediaPlayer.reset();//
+                //mediaPlayer.reset();//
                 mediaPlayer.prepare();
+               // mediaPlayer.release();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -504,6 +506,7 @@ public class MusicService extends Service implements SensorEventListener {
 
         if(mediaPlayer != null){
             mediaPlayer.stop();
+            mediaPlayer.reset();
             mediaPlayer.release();
             Log.d("InstanceStateinit","musicservicedestroy");
         }
