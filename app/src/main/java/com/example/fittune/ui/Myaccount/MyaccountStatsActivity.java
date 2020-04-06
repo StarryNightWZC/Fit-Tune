@@ -181,22 +181,27 @@ public class MyaccountStatsActivity extends AppCompatActivity {
                                 lineChart.setTouchEnabled(true);
                                 lineChart.setPinchZoom(true);
                                 Description description = lineChart.getDescription();
-                                description.setEnabled(false);
+                                description.setEnabled(true);
+                                description.setText("time/s");
 
                                 lineChart.animateY(500);
                                 lineChart.getAxisLeft().setDrawLabels(false);
+                                lineChart.getAxisLeft().setDrawAxisLine(false);
                                 lineChart.getAxisRight().setDrawLabels(false);
-                                lineChart.getXAxis().setDrawLabels(false);
+                                lineChart.getAxisRight().setDrawAxisLine(false);
+                                lineChart.getXAxis().setDrawLabels(true);
+                                lineChart.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
                                 lineChart.getLegend().setEnabled(false);
                                 lineChart.getAxisRight().setDrawGridLines(false);
                                 lineChart.getAxisLeft().setDrawGridLines(false);
                                 lineChart.getXAxis().setDrawGridLines(false);
-                                lineChart.setDrawBorders(true);
+                                lineChart.setDrawBorders(false);
                                 ArrayList<Entry> values = new ArrayList<>();
 
                                 ExerciseStats exerciseStats=document.toObject(ExerciseStats.class);
 
                                 int i = 0;
+                                values.add(new Entry(0, 0));
                                 for (String stat : exerciseStats.getAveragespeedtenseconds()) {
                                     float speed = Float.valueOf(stat);
                                     i += 10;
