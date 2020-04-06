@@ -35,7 +35,7 @@ public class GlobalViewAdapter extends RecyclerView.Adapter<GlobalViewAdapter.Gl
     @Override
     public GlobalViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.single_global, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.single_leaderboard, parent, false);
         return new GlobalViewHolder(view, mOnPicListener);
     }
 
