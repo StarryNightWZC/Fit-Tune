@@ -7,13 +7,13 @@
 
     <fragment
         android:id="@+id/navigation_gallery"
-        android:name="com.example.fittune.ui.Gallery.GalleryFragment"
+        android:name="com.example.fittune.ui.LeaderBoard.GalleryFragment"
         android:label="Gallery"
         tools:layout="@layout/fragment_gallery" />
 
     <fragment
         android:id="@+id/navigation_dashboard"
-        android:name="com.example.fittune.ui.dashboard.DashboardFragment"
+        android:name="com.example.fittune.ui.Dashboard.DashboardFragment"
         android:label="@string/title_dashboard"
         tools:layout="@layout/fragment_dashboard" />
 

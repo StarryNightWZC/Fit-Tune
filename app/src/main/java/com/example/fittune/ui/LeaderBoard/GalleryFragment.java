@@ -1,4 +1,4 @@
-package com.example.fittune.ui.Gallery;
+package com.example.fittune.ui.LeaderBoard;
 
 import android.content.Intent;
 import android.graphics.Bitmap;

@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
+import android.content.Context;
 import android.graphics.Color;
 import android.graphics.DashPathEffect;
 import android.graphics.drawable.Drawable;
@@ -11,18 +12,24 @@ import android.os.Bundle;
 import android.widget.TextView;
 
 import com.example.fittune.Model.ExerciseStats;
+import com.example.fittune.Model.Userprofile;
 import com.example.fittune.R;
 import com.example.fittune.Model.UploadFile;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.components.Description;
 import com.github.mikephil.charting.components.Legend;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.data.BarData;
+import com.github.mikephil.charting.data.BarDataSet;
+import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
+import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.github.mikephil.charting.utils.ColorTemplate;
 import com.github.mikephil.charting.utils.Utils;
@@ -37,6 +44,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -161,60 +169,86 @@ public class MyaccountStatsActivity extends AppCompatActivity {
 //        description.setEnabled(false);
 //    }
     public void createLineChart(){
-        lineChart.setTouchEnabled(true);
-        lineChart.setPinchZoom(true);
-        Description description = lineChart.getDescription();
-        description.setEnabled(false);
 
-        lineChart.animateY(500);
-        lineChart.getAxisLeft().setDrawLabels(false);
-        lineChart.getAxisRight().setDrawLabels(false);
-        lineChart.getXAxis().setDrawLabels(false);
-        lineChart.getLegend().setEnabled(false);
-        lineChart.getAxisRight().setDrawGridLines(false);
-        lineChart.getAxisLeft().setDrawGridLines(false);
-        lineChart.getXAxis().setDrawGridLines(false);
-        lineChart.setDrawBorders(true);
+        final Context ctx = this;
+        firestoreDB.collection("Exercise").document(userID).get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if(task.isSuccessful()){
+                            DocumentSnapshot document=task.getResult();
+                            if(document.exists()){
+                                lineChart.setTouchEnabled(true);
+                                lineChart.setPinchZoom(true);
+                                Description description = lineChart.getDescription();
+                                description.setEnabled(false);
 
-        ArrayList<Entry> values = new ArrayList<>();
-        values.add(new Entry(1, 50));
-        values.add(new Entry(2, 100));
-        values.add(new Entry(3, 70));
-        values.add(new Entry(4, 20));
+                                lineChart.animateY(500);
+                                lineChart.getAxisLeft().setDrawLabels(false);
+                                lineChart.getAxisRight().setDrawLabels(false);
+                                lineChart.getXAxis().setDrawLabels(false);
+                                lineChart.getLegend().setEnabled(false);
+                                lineChart.getAxisRight().setDrawGridLines(false);
+                                lineChart.getAxisLeft().setDrawGridLines(false);
+                                lineChart.getXAxis().setDrawGridLines(false);
+                                lineChart.setDrawBorders(true);
+                                ArrayList<Entry> values = new ArrayList<>();
 
-        LineDataSet set1;
-        if (lineChart.getData() != null &&
-                lineChart.getData().getDataSetCount() > 0) {
-            set1 = (LineDataSet) lineChart.getData().getDataSetByIndex(0);
-            set1.setValues(values);
-            lineChart.getData().notifyDataChanged();
-            lineChart.notifyDataSetChanged();
-        } else {
-            set1 = new LineDataSet(values, "Sample Data");
-            set1.setDrawIcons(false);
-            set1.enableDashedLine(10f, 5f, 0f);
-            set1.enableDashedHighlightLine(10f, 5f, 0f);
-            set1.setColor(Color.DKGRAY);
-            set1.setCircleColor(Color.DKGRAY);
-            set1.setLineWidth(1f);
-            set1.setCircleRadius(5f);
-            set1.setDrawCircleHole(false);
-            set1.setValueTextSize(9f);
-            set1.setDrawFilled(true);
-            set1.setFormLineWidth(1f);
-            set1.setFormLineDashEffect(new DashPathEffect(new float[]{10f, 5f}, 0f));
-            set1.setFormSize(15.f);
-            if (Utils.getSDKInt() >= 18) {
-                Drawable drawable = ContextCompat.getDrawable(this, R.drawable.fade_blue);
-                set1.setFillDrawable(drawable);
-            } else {
-                set1.setFillColor(Color.DKGRAY);
-            }
-            ArrayList<ILineDataSet> dataSets = new ArrayList<>();
-            dataSets.add(set1);
-            LineData data = new LineData(dataSets);
-            lineChart.setData(data);
-        }
+                                ExerciseStats exerciseStats=document.toObject(ExerciseStats.class);
+
+                                int i = 0;
+                                for (String stat : exerciseStats.getAveragespeedtenseconds()) {
+                                    float speed = Float.valueOf(stat);
+                                    i += 10;
+                                    values.add(new Entry(i, speed));
+                                }
+                                //values.add(new Entry(1, 50));
+                                //values.add(new Entry(2, 100));
+                                //values.add(new Entry(3, 70));
+                                //values.add(new Entry(4, 20));
+
+                                LineDataSet set1;
+                                if (lineChart.getData() != null &&
+                                        lineChart.getData().getDataSetCount() > 0) {
+                                    set1 = (LineDataSet) lineChart.getData().getDataSetByIndex(0);
+                                    set1.setValues(values);
+                                    lineChart.getData().notifyDataChanged();
+                                    lineChart.notifyDataSetChanged();
+                                } else {
+                                    set1 = new LineDataSet(values, "Sample Data");
+                                    set1.setDrawIcons(false);
+                                    set1.enableDashedLine(10f, 5f, 0f);
+                                    set1.enableDashedHighlightLine(10f, 5f, 0f);
+                                    set1.setColor(Color.DKGRAY);
+                                    set1.setCircleColor(Color.DKGRAY);
+                                    set1.setLineWidth(1f);
+                                    set1.setCircleRadius(5f);
+                                    set1.setDrawCircleHole(false);
+                                    set1.setValueTextSize(9f);
+                                    set1.setDrawFilled(true);
+                                    set1.setFormLineWidth(1f);
+                                    set1.setFormLineDashEffect(new DashPathEffect(new float[]{10f, 5f}, 0f));
+                                    set1.setFormSize(15.f);
+                                    if (Utils.getSDKInt() >= 18) {
+                                        Drawable drawable = ContextCompat.getDrawable(ctx, R.drawable.fade_blue);
+                                        set1.setFillDrawable(drawable);
+                                    } else {
+                                        set1.setFillColor(Color.DKGRAY);
+                                    }
+                                    ArrayList<ILineDataSet> dataSets = new ArrayList<>();
+                                    dataSets.add(set1);
+                                    LineData data = new LineData(dataSets);
+                                    lineChart.setData(data);
+                                }
+                                Userprofile profile=document.toObject(Userprofile.class);
+                                //username.setText(profile.getName());
+
+                            }else{
+                            }
+                        }else{
+                        }
+                    }
+                });
     }
 
     private void loadProfile(String userID){
@@ -237,4 +271,6 @@ public class MyaccountStatsActivity extends AppCompatActivity {
                     }
                 });
     }
+
+
 }

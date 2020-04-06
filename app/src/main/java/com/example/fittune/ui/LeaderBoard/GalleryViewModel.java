@@ -1,4 +1,4 @@
-package com.example.fittune.ui.Gallery;
+package com.example.fittune.ui.LeaderBoard;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;

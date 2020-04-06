@@ -1,4 +1,4 @@
-package com.example.fittune.ui.dashboard;
+package com.example.fittune.ui.Dashboard;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;

@@ -108,7 +108,7 @@ public class MusicService extends Service implements SensorEventListener {
             /////////////////Test
             for (int i=1;i<4;i++){
                 List<String> p=new ArrayList<String>();
-                File root=new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getAbsolutePath()+'/'+String.valueOf(i));
+                File root=new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath()+'/'+String.valueOf(i));
                 p=Listdir(root,i);
                 Song_info.put(i,p); }
 

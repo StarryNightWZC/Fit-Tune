@@ -1,4 +1,4 @@
-package com.example.fittune.ui.Gallery;
+package com.example.fittune.ui.LeaderBoard;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -65,6 +65,7 @@ public class GlobalViewAdapter extends RecyclerView.Adapter<GlobalViewAdapter.Gl
         }else{
             holder.username.setText(uploadCurrent.getName());
         }
+        holder.musicStyle.setText("Style: " + uploadCurrent.getMusicStyle());
 
         //holder.imageView.setImageResource(mUploads[position]);
     }
@@ -79,6 +80,7 @@ public class GlobalViewAdapter extends RecyclerView.Adapter<GlobalViewAdapter.Gl
         public TextView username;
         public TextView distance;
         public TextView detail;
+        public TextView musicStyle;
         OnPicListener onPicListener;
         public GlobalViewHolder(View itemView, OnPicListener onPicListener) {
             super(itemView);
@@ -86,6 +88,7 @@ public class GlobalViewAdapter extends RecyclerView.Adapter<GlobalViewAdapter.Gl
             this.username = itemView.findViewById(R.id.usernameTextView);
             this.distance = itemView.findViewById(R.id.distanceTextView);
             this.detail = itemView.findViewById(R.id.Detail_text);
+            this.musicStyle = itemView.findViewById(R.id.musicStyleTextview);
             this.onPicListener = onPicListener;
             detail.setOnClickListener(this);
         }

@@ -1,19 +1,9 @@
-package com.example.fittune.ui.dashboard;
+package com.example.fittune.ui.Dashboard;
 
 import android.Manifest;
-import android.app.Activity;
-import android.app.ActivityManager;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Handler;
@@ -28,7 +18,6 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
@@ -45,7 +34,6 @@ import com.example.fittune.Service.ExerciseService;
 import com.example.fittune.Service.MusicService;
 import com.example.fittune.R;
 import com.example.fittune.Model.Userprofile;
-import com.google.android.gms.flags.Flag;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.common.math.Stats;
@@ -61,22 +49,14 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.StorageTask;
 import com.google.firebase.storage.UploadTask;
 
-import java.io.File;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.time.DayOfWeek;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
-
-import de.hdodenhof.circleimageview.CircleImageView;
-
 
 
 public class DashboardFragment extends Fragment  {
@@ -134,7 +114,7 @@ public class DashboardFragment extends Fragment  {
     ExerciseblockAdapter exerciseAdapter;
     private List<ExerciseBlock> eblock;
 
-    private ArrayList<String> averagespeedtenseconds=new ArrayList<>();
+    private List<String> averagespeedtenseconds=new ArrayList<>();
     private ArrayList<Double> speedtemp=new ArrayList<>();
 
 
@@ -344,7 +324,7 @@ public class DashboardFragment extends Fragment  {
                 //update stats
                 updateStats(temp);
                 //upload stats
-                uploadStats();
+                uploadStats(averagespeedtenseconds);
 
                 //todo: Upload average Speed
 
@@ -608,7 +588,7 @@ public class DashboardFragment extends Fragment  {
                 });
     }
 
-    private void uploadStats(){
+    private void uploadStats(final List<String> averagespeedtenseconds){
         timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String exerciseType ="";
         if(exerciseService.exerciseTypeFlag==1){
@@ -620,8 +600,8 @@ public class DashboardFragment extends Fragment  {
         double calories = Math.round(exerciseService.getTotalkcal()*1000.0)/1000.0;
 
         DocumentReference docRef = firestoreDB.collection("Exercise").document();
-        ExerciseStats upload = new ExerciseStats(userID, exerciseType, distance,
-                exerciseService.getTotalsecond(), exerciseService.getCurrentpace(), calories, timeStamp, docRef.getId());
+        ExerciseStats upload = new ExerciseStats(userID, exerciseType, distance, exerciseService.getTotalsecond(),
+                exerciseService.getCurrentpace(), calories, timeStamp, docRef.getId(), averagespeedtenseconds);
         docRef.set(upload);
         Toast.makeText(getActivity(), "Exercise Stats Uploaded to Database!", Toast.LENGTH_LONG).show();
     }

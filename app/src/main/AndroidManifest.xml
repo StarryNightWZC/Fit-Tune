@@ -25,7 +25,7 @@
             android:enabled="true"
             android:exported="true"></service>
         <activity
-            android:name=".ui.Gallery.LeaderboardProfileActivity"
+            android:name=".ui.LeaderBoard.LeaderboardProfileActivity"
             android:parentActivityName=".MainActivity" />
         <activity
             android:name=".ui.Myaccount.MyaccountStatsActivity"
