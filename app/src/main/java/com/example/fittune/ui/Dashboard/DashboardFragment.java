@@ -108,7 +108,7 @@ public class DashboardFragment extends Fragment  {
     private String musicstyle;
 
     private Boolean isdistance=false,isfatburning=false,ispace=false,isduration=false;
-    private Boolean isedm=false,isclassic=false,ispop=false;
+    private Boolean isedm=false,isrock=false,ispop=false;
 
     RecyclerView exercise_block;
     ExerciseblockAdapter exerciseAdapter;
@@ -117,7 +117,7 @@ public class DashboardFragment extends Fragment  {
     private List<String> averagespeedtenseconds=new ArrayList<>();
     private ArrayList<Double> speedtemp=new ArrayList<>();
 
-
+    Integer flag;
 
     //Music Service
     private ServiceConnection scmusic = new ServiceConnection() {
@@ -218,7 +218,7 @@ public class DashboardFragment extends Fragment  {
         root.findViewById(R.id.Edit).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final Dialog_Edit dialog_edit=new Dialog_Edit(isdistance,isfatburning,ispace,isduration,isedm,isclassic,ispop);
+                final Dialog_Edit dialog_edit=new Dialog_Edit(isdistance,isfatburning,ispace,isduration,isedm,isrock,ispop);
 
                 dialog_edit.setdoneOnclickListener(new Dialog_Edit.onDoneOnclickListener() {
                     @Override
@@ -226,6 +226,13 @@ public class DashboardFragment extends Fragment  {
                         String [] temp = null;
                         String exercisetemps = sb.toString();
                         musicstyle=music.toString();
+                        musicService.musicStyle=musicstyle;
+                        if(exerciseService.exerciseTypeFlag ==1){
+                            musicService.changemusic(musicService.musicflago);
+                        }else {
+                            musicService.changemusic(flag);
+                        }
+
                         SetChoicevalue(exercisetemps,musicstyle,false);
                         dialog_edit.dismiss();
                     }
@@ -358,7 +365,7 @@ public class DashboardFragment extends Fragment  {
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 seedseekbarvalue=progress/10f;
                 exerciseService.seedseekbarvalue=seedseekbarvalue;
-                Integer flag=0;
+                 flag=0;
                 speed.setText("SPEED\n"+Float.toString(seedseekbarvalue)+" Km/h");
                 //change music
                 if(!Flag){
@@ -608,7 +615,7 @@ public class DashboardFragment extends Fragment  {
 
     private void SetChoicevalue(String temps, String Musicstyle, Boolean init){
 
-        ispop=false;isclassic=false;isedm=false;
+        ispop=false;isrock=false;isedm=false;
         isduration=false;isdistance=false;isfatburning=false;ispace=false;
         if(init){
             if(Musicstyle.isEmpty()){
@@ -635,8 +642,8 @@ public class DashboardFragment extends Fragment  {
             case "EDM":
                 isedm=true;
                 break;
-            case "Classic":
-                isclassic=true;
+            case "Rock":
+                isrock=true;
                 break;
             case  "Pop":
                 ispop=true;

@@ -1,6 +1,5 @@
 package com.example.fittune.Service;
 
-import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.app.Service;
 import android.content.Context;
@@ -16,6 +15,9 @@ import android.os.Environment;
 import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
+
+import com.example.fittune.GetMusicBank;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -33,6 +35,7 @@ public class MusicService extends Service implements SensorEventListener {
     public Sensor accSensor;
     public Sensor accelerometer;
     public int cadence;
+    private FirebaseFirestore firestoreDB;
 
     private class Acceleration {
         public long timestamp;
@@ -90,6 +93,14 @@ public class MusicService extends Service implements SensorEventListener {
 
     public Integer musicflago=0;
     private HashMap<Integer, List> Song_info=new HashMap<>();
+    private String Test_url;
+    private GetMusicBank getMusicBank;
+
+    private HashMap<Integer, List> EDM_Song_info=new HashMap<>();
+    private HashMap<Integer, List> POP_Song_info=new HashMap<>();
+    private HashMap<Integer, List> ROCK_Song_info=new HashMap<>();
+
+    public String musicStyle="EDM";
 
 
     @Override
@@ -97,25 +108,53 @@ public class MusicService extends Service implements SensorEventListener {
         // Toast.makeText(this, "ExerciseService Created", Toast.LENGTH_SHORT).show();
         sensorManager=(SensorManager)getSystemService(Context.SENSOR_SERVICE);
         init();
-        //add this line only
+        //getMusicBank=new GetMusicBank();
     }
 
 
+
+
     public void initMediaPlayer() {
-
-
         try {
-            /////////////////Test
+
+            Log.d("InstanceState","Music Service Init");
             for (int i=1;i<4;i++){
                 List<String> p=new ArrayList<String>();
-                File root=new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getAbsolutePath()+'/'+String.valueOf(i));
+                File root=new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getAbsolutePath()+"/EDM/"+String.valueOf(i));
                 p=Listdir(root,i);
-                Song_info.put(i,p); }
+                EDM_Song_info.put(i,p); }
+            Log.d("InstanceState","EDM Init");
+            for (int i=1;i<4;i++){
+                List<String> p=new ArrayList<String>();
+                File root=new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getAbsolutePath()+"/Pop/"+String.valueOf(i));
+                p=Listdir(root,i);
+                POP_Song_info.put(i,p); }
+            Log.d("InstanceState","Pop Init");
+            for (int i=1;i<4;i++){
+                List<String> p=new ArrayList<String>();
+                File root=new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getAbsolutePath()+"/Rock/"+String.valueOf(i));
+                p=Listdir(root,i);
+                ROCK_Song_info.put(i,p); }
+            Log.d("InstanceState","Rock Service Init");
 
-            String init_path=getrandommusic(1,Song_info);
-            //Log.d("InstanceStateinit",init_path);
+            String init_path;
+            switch (musicStyle){
+                case "EDM":
+                    init_path=getrandommusic(1,EDM_Song_info);
+                    break;
+                case "Pop":
+                    init_path=getrandommusic(1,POP_Song_info);
+                    break;
+                case "Rock":
+                    init_path=getrandommusic(1,ROCK_Song_info);
+                    break;
+                default:
+                    init_path=getrandommusic(1,Song_info);
+            }
+            //String init_path=getrandommusic(1,Song_info);
 
-            Log.d("InstanceState","InitMediaplayer");
+
+            Log.d("InstanceState",init_path);
 
             mediaPlayer=new MediaPlayer();
             mediaPlayer.reset();
@@ -156,15 +195,15 @@ public class MusicService extends Service implements SensorEventListener {
         String song_path="";
         List<String> f=SongLib.get(type);
         int max=f.size();
-        //Random random = new Random();
-        //int r = random.nextInt(max)%(max+1);
-        int r=count%(3);
+
+        int r=count%(max);
         song_path=f.get(r);
-        Log.d("Files",String.valueOf(r));
+        Log.d("Files",song_path);
         return song_path;
     }
 
     public void changemusic(Integer type){
+
 
         switch (type){
             case 1:
@@ -207,7 +246,8 @@ public class MusicService extends Service implements SensorEventListener {
         }
 
     }
-    ///////////Test
+
+
     public void changeplayerSpeed(float speed) {
         if (mediaPlayer == null)  {
             return;
@@ -236,22 +276,30 @@ public class MusicService extends Service implements SensorEventListener {
             mediaPlayer.reset();
         }
         try {
-            //path=Songinfo.get(type);
-            path=getrandommusic(type,Song_info);
-            //Log.d("InstanceState",path);
+            switch (musicStyle){
+                case "EDM":
+                    path=getrandommusic(type,EDM_Song_info);
+                    Log.d("Path",path);
+                    break;
+                case "Pop":
+                    path=getrandommusic(type,POP_Song_info);
+                    Log.d("Path",path);
+                    break;
+                case "Rock":
+                    path=getrandommusic(type,ROCK_Song_info);
+                    Log.d("Path",path);
+                    break;
+                default:
+                    path=getrandommusic(type,Song_info);
+                    Log.d("Path",path);
+            }
+            //path=getrandommusic(type,Song_info);
+
             mediaPlayer.reset();
             mediaPlayer.setDataSource(path);
             mediaPlayer.prepare();
             mediaPlayer.start();
-/*
-            mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-                @Override
-                public void onPrepared(MediaPlayer mp) {
-                    // mediaPlayer.seekTo(0);
-                    mediaPlayer.start();
-                }
-            });
-*/
+
         }catch (Exception e){
             e.printStackTrace();
             Toast.makeText(this, "播放错误", Toast.LENGTH_SHORT).show();

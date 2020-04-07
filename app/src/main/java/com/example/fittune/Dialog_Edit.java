@@ -23,11 +23,11 @@ import java.util.List;
 import java.util.Map;
 
 public class Dialog_Edit extends AppCompatDialogFragment {
-    private CheckBox distance,fatburning,pace,duration,edm,classic,pop;
+    private CheckBox distance,fatburning,pace,duration,edm,rock,pop;
     private Dialog dialog;
     private TextView done;
     private Boolean isdistance,isfatburning,ispace,isduration;
-    private Boolean isedm,isclassic,ispop;
+    private Boolean isedm,isrock,ispop;
     private onDoneOnclickListener doneOnclickListener;
     StringBuilder sb=new StringBuilder();
     StringBuilder musicstyle=new StringBuilder();
@@ -40,17 +40,17 @@ public class Dialog_Edit extends AppCompatDialogFragment {
     static Integer musicchoicenumber=0;
     ArrayList<String> music=new ArrayList<String>(1);
 
-    public Dialog_Edit(Boolean distance,Boolean fatburning,Boolean pace,Boolean duration,Boolean edm,Boolean classic, Boolean pop){
+    public Dialog_Edit(Boolean distance,Boolean fatburning,Boolean pace,Boolean duration,Boolean edm,Boolean rock, Boolean pop){
 
         isdistance=distance;isfatburning=fatburning;ispace=pace;isduration=duration;
-        isedm=edm;isclassic=classic;ispop=pop;
+        isedm=edm;isrock=rock;ispop=pop;
 
         exercisechoice.put("Distance",isdistance);
         exercisechoice.put("Fat Burning",isfatburning);
         exercisechoice.put("Pace",ispace);
         exercisechoice.put("Duration",isduration);
         exercisechoice.put("EDM",isedm);
-        exercisechoice.put("Classic",isclassic);
+        exercisechoice.put("Rock",isrock);
         exercisechoice.put("Pop",ispop);
 
     }
@@ -89,7 +89,7 @@ public class Dialog_Edit extends AppCompatDialogFragment {
         done=(TextView)contentview.findViewById(R.id.done);
 
         edm=(CheckBox)contentview.findViewById(R.id.EDM);
-        classic=(CheckBox)contentview.findViewById(R.id.Classic);
+        rock=(CheckBox)contentview.findViewById(R.id.Rock);
         pop=(CheckBox)contentview.findViewById(R.id.Pop);
 
         InitChecked();
@@ -153,10 +153,10 @@ public class Dialog_Edit extends AppCompatDialogFragment {
                     ValidChoice(choicenumber,musicchoicenumber);
                 }
                 break;
-            case "Classic":
+            case "Rock":
                 if(value) {
-                    classic.setChecked(true);
-                    classic.setTextColor(ContextCompat.getColor(getContext(),R.color.colorwhite));
+                    rock.setChecked(true);
+                    rock.setTextColor(ContextCompat.getColor(getContext(),R.color.colorwhite));
                     musicchoicenumber += 1;
                     music.add(key);
                     ValidChoice(choicenumber,musicchoicenumber);
@@ -288,22 +288,22 @@ public class Dialog_Edit extends AppCompatDialogFragment {
 
 
 
-        classic.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        rock.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if(isChecked){
-                    isclassic=true;
+                    isrock=true;
                     musicchoicenumber+=1;
-                    classic.setTextColor(ContextCompat.getColor(getContext(),R.color.colorwhite));
+                    rock.setTextColor(ContextCompat.getColor(getContext(),R.color.colorwhite));
                     music.add(buttonView.getText().toString().trim());
                 }else {
 
-                    isclassic=false;
+                    isrock=false;
                     if(musicchoicenumber==0){
                         musicchoicenumber=0;
                     }else{
                         musicchoicenumber-=1;
-                        classic.setTextColor(ContextCompat.getColor(getContext(),R.color.colordarkwhite));
+                        rock.setTextColor(ContextCompat.getColor(getContext(),R.color.colordarkwhite));
                         music.remove(buttonView.getText().toString().trim());
                     }
 
@@ -423,14 +423,14 @@ public class Dialog_Edit extends AppCompatDialogFragment {
             if(!ispop){
                 pop.setEnabled(false);
             }
-            if(!isclassic){
-                classic.setEnabled(false);
+            if(!isrock){
+                rock.setEnabled(false);
             }
 
         }else {
             edm.setEnabled(true);
             pop.setEnabled(true);
-            classic.setEnabled(true);
+            rock.setEnabled(true);
         }
 
     }
