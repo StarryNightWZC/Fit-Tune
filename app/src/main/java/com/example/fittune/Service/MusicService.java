@@ -100,7 +100,7 @@ public class MusicService extends Service implements SensorEventListener {
     private HashMap<Integer, List> POP_Song_info=new HashMap<>();
     private HashMap<Integer, List> ROCK_Song_info=new HashMap<>();
 
-    public String musicStyle="EDM";
+    public String musicStyle="Rock";
 
 
     @Override
@@ -421,18 +421,18 @@ public class MusicService extends Service implements SensorEventListener {
 
                 cadence = getCurrentcadence();
                 if(mediaPlayer.isPlaying()){
-                    if(cadence<100) {
+                    if(cadence<115) {
                         musicflago=1;
                         if(!currentsong.equals(1)){
                             changemusic(musicflago);
                         }
-                        change_music_speed(cadence,65,1);
+                        change_music_speed(cadence,75,1);
                     }else {
                         musicflago=2;
                         if(!currentsong.equals(2)){
                             changemusic(musicflago);
                         }
-                        change_music_speed(cadence,115,1);
+                        change_music_speed(cadence,135,1);
                     }
                 }
             }

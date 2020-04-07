@@ -68,7 +68,7 @@ public class ExerciseService extends Service{
     public Runnable updateRunnable=new Runnable() {
         @Override
         public void run() {
-            if(exerciseTypeFlag==1){
+            if(exerciseTypeFlag==1&&!isDurationStop){
                 //Current Speed
                 //Double cur=(currentcadence*0.5*60/1000);
                 //Distance
@@ -86,7 +86,7 @@ public class ExerciseService extends Service{
                // String totalsecond=getChronometerSeconds(durationtimer);
                 //Log.d("TotalSecond",currentpace);*/
 
-            }else {
+            }else if(!isDurationStop){
                 //Distance
                 intervaldistance=seedseekbarvalue*1/3600;
                 totaldistance+=intervaldistance;

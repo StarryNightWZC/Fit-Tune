@@ -105,7 +105,7 @@ public class DashboardFragment extends Fragment  {
 
     private boolean running=false;
 
-    private String musicstyle;
+    private String musicstyle="Rock";
 
     private Boolean isdistance=false,isfatburning=false,ispace=false,isduration=false;
     private Boolean isedm=false,isrock=false,ispop=false;
@@ -191,7 +191,7 @@ public class DashboardFragment extends Fragment  {
         exercise_block.setLayoutManager(manager);
         exercise_block.getItemAnimator().setChangeDuration(0);
 
-        SetChoicevalue("Distance,Fat Burning","EDM",true);
+        SetChoicevalue("Distance,Fat Burning",musicstyle,true);
 
         speed=root.findViewById(R.id.speedkm);
 
