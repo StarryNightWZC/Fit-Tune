@@ -366,7 +366,7 @@ public class DashboardFragment extends Fragment  {
                 seedseekbarvalue=progress/10f;
                 exerciseService.seedseekbarvalue=seedseekbarvalue;
                  flag=0;
-                speed.setText("SPEED\n"+Float.toString(seedseekbarvalue)+" Km/h");
+                speed.setText(Float.toString(seedseekbarvalue)+" Km/h");
                 //change music
                 if(!Flag){
                     if(seedseekbarvalue<=6&&seedseekbarvalue>=0){

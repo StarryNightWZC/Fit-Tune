@@ -83,7 +83,7 @@ public class MusicService extends Service implements SensorEventListener {
         }
     }
 
-    public static Integer currentsong=0;
+    public static Integer currentsong=100;
     public MediaPlayer mediaPlayer=new MediaPlayer();
     public MusicService() {
         initMediaPlayer();
@@ -337,7 +337,20 @@ public class MusicService extends Service implements SensorEventListener {
             mediaPlayer.reset();
 
             try {
-                String init_path=getrandommusic(1,Song_info);
+                String init_path;
+                switch (musicStyle){
+                    case "EDM":
+                        init_path=getrandommusic(1,EDM_Song_info);
+                        break;
+                    case "Pop":
+                        init_path=getrandommusic(1,POP_Song_info);
+                        break;
+                    case "Rock":
+                        init_path=getrandommusic(1,ROCK_Song_info);
+                        break;
+                    default:
+                        init_path=getrandommusic(1,Song_info);
+                }
                 mediaPlayer.setDataSource(init_path);
                 //mediaPlayer.reset();//
                 mediaPlayer.prepare();
