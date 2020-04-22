@@ -59,7 +59,8 @@ public class GlobalViewAdapter extends RecyclerView.Adapter<GlobalViewAdapter.Gl
                 .into(holder.imageView);
         //TODO update userprofile to take userID and storageref
         //holder.distance.setText(uploadCurrent.getDistance()+ " km");
-        holder.distance.setText(Float.toString(distanceTotal).substring(0, 5)+ " km");
+        double temp = Math.round(distanceTotal*100.0)/100.0;
+        holder.distance.setText(Double.toString(temp)+ " km");
         if(uploadCurrent.getUserId().equals(userId)){
             holder.username.setText(uploadCurrent.getName() + " (you)");
         }else{
