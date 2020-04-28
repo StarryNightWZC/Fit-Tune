@@ -85,8 +85,7 @@ public class MusicService extends Service implements SensorEventListener {
 
     public static Integer currentsong=100;
     public MediaPlayer mediaPlayer=new MediaPlayer();
-    public MusicService() {
-        initMediaPlayer();
+    public MusicService(){
     }
 
     private int count=0;
@@ -102,6 +101,8 @@ public class MusicService extends Service implements SensorEventListener {
 
     public String musicStyle="Rock";
 
+    private Boolean musicinitFlag=true;
+
 
     @Override
     public void onCreate() {
@@ -115,67 +116,74 @@ public class MusicService extends Service implements SensorEventListener {
 
 
     public void initMediaPlayer() {
-        try {
+            try {
+                Log.d("InstanceState", "Music Service Init");
+                for (int i = 1; i < 4; i++) {
+                    List<String> p = new ArrayList<String>();
+                    File root = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getAbsolutePath() + "/EDM/" + String.valueOf(i));
+                    p = Listdir(root, i);
 
-            Log.d("InstanceState","Music Service Init");
-            for (int i=1;i<4;i++){
-                List<String> p=new ArrayList<String>();
-                File root=new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getAbsolutePath()+"/EDM/"+String.valueOf(i));
-                p=Listdir(root,i);
-                EDM_Song_info.put(i,p); }
-            Log.d("InstanceState","EDM Init");
-            for (int i=1;i<4;i++){
-                List<String> p=new ArrayList<String>();
-                File root=new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getAbsolutePath()+"/Pop/"+String.valueOf(i));
-                p=Listdir(root,i);
-                POP_Song_info.put(i,p); }
-            Log.d("InstanceState","Pop Init");
-            for (int i=1;i<4;i++){
-                List<String> p=new ArrayList<String>();
-                File root=new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getAbsolutePath()+"/Rock/"+String.valueOf(i));
-                p=Listdir(root,i);
-                ROCK_Song_info.put(i,p); }
-            Log.d("InstanceState","Rock Service Init");
-
-            String init_path;
-            switch (musicStyle){
-                case "EDM":
-                    init_path=getrandommusic(1,EDM_Song_info);
-                    break;
-                case "Pop":
-                    init_path=getrandommusic(1,POP_Song_info);
-                    break;
-                case "Rock":
-                    init_path=getrandommusic(1,ROCK_Song_info);
-                    break;
-                default:
-                    init_path=getrandommusic(1,Song_info);
-            }
-            //String init_path=getrandommusic(1,Song_info);
-
-
-            Log.d("InstanceState",init_path);
-
-            mediaPlayer=new MediaPlayer();
-            mediaPlayer.reset();
-            mediaPlayer.setDataSource(init_path);
-            mediaPlayer.prepare();
-            currentsong=1;
-            mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                @Override
-                public void onCompletion(MediaPlayer mp) {
-                    try{
-                        playnewmusic(musicflago);
-                    }catch (Exception e){
-                        e.printStackTrace();
-                    }
+                    EDM_Song_info.put(i, p);
                 }
-            });
+                Log.d("InstanceState", "EDM Init");
+                for (int i = 1; i < 4; i++) {
+                    List<String> p = new ArrayList<String>();
+                    File root = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getAbsolutePath() + "/Pop/" + String.valueOf(i));
+                    p = Listdir(root, i);
+
+                    POP_Song_info.put(i, p);
+                }
+                Log.d("InstanceState", "Pop Init");
+                for (int i = 1; i < 4; i++) {
+                    List<String> p = new ArrayList<String>();
+                    File root = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getAbsolutePath() + "/Rock/" + String.valueOf(i));
+                    p = Listdir(root, i);
+
+                    ROCK_Song_info.put(i, p);
+                }
+                Log.d("InstanceState", "Rock Service Init");
 
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+
+                String init_path;
+                switch (musicStyle) {
+                    case "EDM":
+                        init_path = getrandommusic(1, EDM_Song_info);
+                        break;
+                    case "Pop":
+                        init_path = getrandommusic(1, POP_Song_info);
+                        break;
+                    case "Rock":
+                        init_path = getrandommusic(1, ROCK_Song_info);
+                        break;
+                    default:
+                        init_path = getrandommusic(1, Song_info);
+                }
+                //String init_path=getrandommusic(1,Song_info);
+
+                Log.d("InstanceState", init_path);
+
+                mediaPlayer = new MediaPlayer();
+                mediaPlayer.reset();
+                mediaPlayer.setDataSource(init_path);
+                mediaPlayer.prepare();
+                currentsong = 1;
+                mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                    @Override
+                    public void onCompletion(MediaPlayer mp) {
+                        try {
+                            playnewmusic(musicflago);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+
     }
 
 
@@ -187,6 +195,7 @@ public class MusicService extends Service implements SensorEventListener {
         for(File file:files){
             filelist.add(file.getAbsolutePath());
         }
+        Log.d("Path",filelist.toString());
         return filelist;
     }
 

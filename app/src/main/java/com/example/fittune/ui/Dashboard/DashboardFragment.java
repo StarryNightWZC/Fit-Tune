@@ -252,6 +252,7 @@ public class DashboardFragment extends Fragment  {
                 dialog_chooseScenario.setoutdoorOnclickListener(new Dialog_chooseScenario.onOutdoorOnclickListener() {
                     @Override
                     public void onOutdoorClick() {
+                        musicService.initMediaPlayer();
                         exerciseService.exerciseTypeFlag = 1;
                         musicService.exercisetype=1;
                         //musicService.isbpmdetected=true;
@@ -277,11 +278,16 @@ public class DashboardFragment extends Fragment  {
                 dialog_chooseScenario.setTreadmillOnclickListener(new Dialog_chooseScenario.onTreadmillOnclickListener() {
                     @Override
                     public void ontreadmillClick() {
+
+                        musicService.initMediaPlayer();
                         exerciseService.exerciseTypeFlag = 2;
                         musicService.exercisetype=2;
                         Flag=false;
                         SendFlagtoActivity(Flag);
+
+
                         musicService.playOrPause();
+
                         Taptostart.setEnabled(false);
                         Taptostart.setText("");
 
